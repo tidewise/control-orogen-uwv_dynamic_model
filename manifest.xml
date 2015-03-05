@@ -1,0 +1,18 @@
+<package>
+  <description brief="Component for a underwater vehicle motion model.">
+  
+  </description>
+  <author>Rafael Saback/rafael.saback@fieb.org.br</author>
+  <license></license>
+  <url>http://</url>
+  <logo>http://</logo>
+  <depend package="base/cmake" />
+  <depend package="control/uwv_dynamic_model"/>
+  <!--
+   To add any dependencies use the depend tag
+  <depend package="dummy-dependency-0" />
+	...
+  <depend package="dummy-dependency-n-1" />
+  <depend package="dummy-dependency-n" />
+  -->
+</package>

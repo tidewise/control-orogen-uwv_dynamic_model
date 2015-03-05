@@ -1,0 +1,61 @@
+name "uwv_motion_model"
+
+using_library "uwv_dynamic_model"
+import_types_from "base"
+import_types_from "uwv_dynamic_model/uwv_dataTypes.hpp"
+import_types_from "motion_modelTypes.hpp"
+
+task_context "Task" do
+  
+  needs_configuration
+  
+  #*************************
+  #***    PROPERTIES     ***
+  #*************************
+
+  property("model_parameters", "uwv_dynamic_model/Parameters")
+    .doc("Parameters of the motion model.")
+  
+  property("control_mode", "ControlMode")
+    .doc("Defines if the control signal is PWM, RPM or EFFORT.")
+    
+  property("source_frame", "std/string")
+    .doc("Name of the source frame.")
+    
+  property("target_frame", "std/string")
+    .doc("Name of the target frame.")
+
+  property("velocity_uncertainty", "base/Vector6d")
+    .doc("Velocity uncertainty values. This values are integrated in order to obtain the pose uncertainty")
+
+  
+  #*************************
+  #***     I/O PORTS     ***
+  #*************************
+
+  input_port("cmd_in", "/base/commands/Joints")
+    .doc("Thrusters' commands.")
+
+  output_port("cmd_out", "/base/samples/RigidBodyState")
+    .doc("The new states after the thrusters' commands are applied.")
+    
+  output_port("secondary_states", "SecondaryStates")
+    .doc("Effort and acceleration values.")
+
+
+  #*************************
+  #***      OTHERS       ***
+  #*************************
+  
+  operation("setNewParameters")
+    .returns('bool')
+        
+  operation("resetStates")
+  
+  runtime_states :SIMULATING
+  error_states :RAW_FIELD_UNSET, :SPEED_FIELD_UNSET, :EFFORT_FIELD_UNSET
+  exception_states :WRONG_SIZE_OF_CONTROL_ELEMENTS
+        
+  periodic 0.01
+
+end
