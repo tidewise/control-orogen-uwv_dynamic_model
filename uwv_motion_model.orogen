@@ -16,7 +16,7 @@ task_context "Task" do
   property("model_parameters", "uwv_dynamic_model/Parameters")
     .doc("Parameters of the motion model.")
   
-  property("control_mode", "ControlMode")
+  property("control_mode", "uwv_motion_model/ControlMode")
     .doc("Defines if the control signal is PWM, RPM or EFFORT.")
     
   property("source_frame", "std/string")
@@ -39,7 +39,7 @@ task_context "Task" do
   output_port("cmd_out", "/base/samples/RigidBodyState")
     .doc("The new states after the thrusters' commands are applied.")
     
-  output_port("secondary_states", "SecondaryStates")
+  output_port("secondary_states", "uwv_motion_model/SecondaryStates")
     .doc("Effort and acceleration values.")
 
 
