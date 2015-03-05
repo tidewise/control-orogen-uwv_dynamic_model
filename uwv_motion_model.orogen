@@ -3,7 +3,7 @@ name "uwv_motion_model"
 using_library "uwv_dynamic_model"
 import_types_from "base"
 import_types_from "uwv_dynamic_model/uwv_dataTypes.hpp"
-import_types_from "motion_modelTypes.hpp"
+import_types_from "uwv_motion_modelTypes.hpp"
 
 task_context "Task" do
   
