@@ -1,0 +1,492 @@
+--- name:PIDPositionOnly
+
+expected_inputs:
+  linear:
+  - true
+  - true
+  - true
+  angular:
+  - true
+  - true
+  - true
+
+keep_position_on_exception: true
+
+metadata:
+  metadata: []
+  properties: []
+  input_ports: []
+  output_ports: []
+
+parallel_pid_settings:
+  linear:
+    
+##   SURGE   ##
+  - Ts: 0.01
+    Kp: 3
+    Ki: 0.0
+    Kd: 6
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+
+##   SWAY   ##
+  - Ts: 0.01
+    Kp: 0.6
+    Ki: 0.0
+    Kd: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+    
+##   HEAVE   ##
+  - Ts: 0.01
+    Kp: 0.6
+    Ki: 0.0
+    Kd: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+    
+  angular:
+    
+##   ROLL   ##
+  - Ts: 0.01
+    Kp: 0.0
+    Ki: 0.0
+    Kd: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+    
+##   PITCH   ##    
+  - Ts: 0.01
+    Kp: 0.0
+    Ki: 0.0
+    Kd: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+    
+##   YAW   ##    
+  - Ts: 0.01
+    Kp: 0.03
+    Ki: 0.0
+    Kd: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+
+pid_settings:
+  linear:
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+  angular:
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+
+position_control: true
+
+safe_mode: true
+
+timeout_cascade: 1.0
+
+timeout_in: 1.0
+
+use_parallel_pid_settings: true
+
+variance_threshold: .inf
+
+world_frame: true
+
+
+
+--- name:PIDPosition
+
+expected_inputs:
+  linear:
+  - true
+  - true
+  - true
+  angular:
+  - true
+  - true
+  - true
+
+keep_position_on_exception: true
+
+metadata:
+  metadata: []
+  properties: []
+  input_ports: []
+  output_ports: []
+
+parallel_pid_settings:
+  linear:
+    
+##   SURGE   ##
+  - Ts: 0.01
+    Kp: 0.3
+    Ki: 0.0
+    Kd: 0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: -0.3
+    YMax: 0.3
+
+##   SWAY   ##
+  - Ts: 0.01
+    Kp: 1
+    Ki: 0.0
+    Kd: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+    
+##   HEAVE   ##
+  - Ts: 0.01
+    Kp: 1
+    Ki: 0.0
+    Kd: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+    
+  angular:
+    
+##   ROLL   ##
+  - Ts: 0.01
+    Kp: 0.0
+    Ki: 0.0
+    Kd: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+    
+##   PITCH   ##    
+  - Ts: 0.01
+    Kp: 0.0
+    Ki: 0.0
+    Kd: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+    
+##   YAW   ##    
+  - Ts: 0.01
+    Kp: 0.5
+    Ki: 0.0
+    Kd: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+
+pid_settings:
+  linear:
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+  angular:
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+
+position_control: true
+
+safe_mode: true
+
+timeout_cascade: 1.0
+
+timeout_in: 1.0
+
+use_parallel_pid_settings: true
+
+variance_threshold: .inf
+
+world_frame: true
+
+
+
+--- name:PIDVelocity
+
+expected_inputs:
+  linear:
+  - true
+  - true
+  - true
+  angular:
+  - true
+  - true
+  - true
+
+keep_position_on_exception: true
+
+metadata:
+  metadata: []
+  properties: []
+  input_ports: []
+  output_ports: []
+
+parallel_pid_settings:
+  linear:
+    
+##   SURGE   ##
+  - Ts: 0.01
+    Kp: 2
+    Ki: 1
+    Kd: 0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+
+##   SWAY   ##
+  - Ts: 0.01
+    Kp: 0
+    Ki: 0.0
+    Kd: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+    
+##   HEAVE   ##
+  - Ts: 0.01
+    Kp: 0
+    Ki: 0.0
+    Kd: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+    
+  angular:
+    
+##   ROLL   ##
+  - Ts: 0.01
+    Kp: 0.0
+    Ki: 0.0
+    Kd: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+    
+##   PITCH   ##    
+  - Ts: 0.01
+    Kp: 0.0
+    Ki: 0.0
+    Kd: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+    
+##   YAW   ##    
+  - Ts: 0.01
+    Kp: 450
+    Ki: 300
+    Kd: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+
+pid_settings:
+  linear:
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+  angular:
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+  - Ts: 0.0
+    K: 0.0
+    Ti: 0.0
+    Td: 0.0
+    N: 0.0
+    B: 1.0
+    Tt: -1.0
+    YMin: 0.0
+    YMax: 0.0
+
+position_control: false
+
+safe_mode: true
+
+timeout_cascade: 1.0
+
+timeout_in: 1.0
+
+use_parallel_pid_settings: true
+
+variance_threshold: .inf
+
+world_frame: false

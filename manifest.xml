@@ -1,6 +1,7 @@
 <package>
-  <description brief="Component for a underwater vehicle motion model.">
-  
+  <description brief="Component for an underwater vehicle motion model.">
+  	This component implements a motion model for underwater vehicles based
+  	on Fossen's motion model.
   </description>
   <author>Rafael Saback/rafael.saback@fieb.org.br</author>
   <license></license>
@@ -8,11 +9,5 @@
   <logo>http://</logo>
   <depend package="base/cmake" />
   <depend package="control/uwv_dynamic_model"/>
-  <!--
-   To add any dependencies use the depend tag
-  <depend package="dummy-dependency-0" />
-	...
-  <depend package="dummy-dependency-n-1" />
-  <depend package="dummy-dependency-n" />
-  -->
+  <depend package="control/orogen/auv_control"/>
 </package>

@@ -1,0 +1,51 @@
+--- name:default
+# Degrees of freedom that will be controlled. It's important to desconsider
+#           the degrees of freedom that don't have actuation, so the thrust
+#           configuration matrix will be adjusted to be pseudo-invertible.
+controllable_dofs: ["SURGE", "SWAY", "HEAVE", "YAW"]
+# Constant for converting the DC value into a equivalent PWM signal.
+dc_to_pwm: 19.0
+# no documentation available for this property
+metadata:
+  metadata: []
+  properties: []
+  input_ports: []
+  output_ports: []
+# Converting the negative effort value into an equivalent DC value.
+neg_effort_to_dc: 0.03457
+# Converting the positive effort value into an equivalent DC value.
+pos_effort_to_dc: 0.04005
+# Property for generating a sway offset to compensate undesirable
+#           sidewards movements.
+sway_compensation: 0.0
+# Thrust configuration matrix of the vehicle.
+thrust_config_matrix:
+    rows: 6
+    cols: 4
+    data:
+    - 1.0    # Thruster 1
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.05
+    - 1.0    # Thruster 2
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - -0.05
+    - 0.0    # Thruster 3
+    - 0.0
+    - 1.0
+    - 0.0
+    - 0.04
+    - 0.0   
+    - 0.0    # Thruster 4
+    - 1.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.015 
+# This should be a value up to 1 (maximum thrust possible).
+thrusters_limit: 0

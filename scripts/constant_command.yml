@@ -1,0 +1,21 @@
+--- name:default
+
+cmd:
+  time:
+    microseconds: 0
+  linear:
+    data:
+    - 0
+    - 0
+    - 0
+  angular:
+    data:
+    - 0
+    - 0
+    - 0
+
+metadata:
+  metadata: []
+  properties: []
+  input_ports: []
+  output_ports: []
