@@ -29,8 +29,8 @@ bool Task::configureHook()
 
     gModelParameters = _model_parameters.get();
 
-    int controlOrder 	= gModelParameters.controlOrder;
-    int simPerCycle 	= gModelParameters.simPerCycle;
+    int controlOrder 	= gModelParameters.ctrl_order;
+    int simPerCycle 	= gModelParameters.sim_per_cycle;
     double samplingTime = TaskContext::getPeriod();
 
     // Creating the motion model object
@@ -38,7 +38,7 @@ bool Task::configureHook()
     gMotionModel->initParameters(gModelParameters);
 
     // Updating the samplingTime at the component property
-    gModelParameters.samplingTime = samplingTime;
+    gModelParameters.samplingtime = samplingTime;
     _model_parameters.set(gModelParameters);
 
     return true;
@@ -129,7 +129,7 @@ bool Task::checkInput(base::samples::Joints &controlInput)
 	switch(controlMode)
 	{
 	case PWM:
-		if(controlInput.size() != gModelParameters.controlOrder)
+		if(controlInput.size() != gModelParameters.ctrl_order)
 		{
 			inputError = true;
 			exception(WRONG_SIZE_OF_CONTROL_ELEMENTS);
@@ -149,7 +149,7 @@ bool Task::checkInput(base::samples::Joints &controlInput)
 		break;
 
 	case RPM:
-		if(controlInput.size() != gModelParameters.controlOrder)
+		if(controlInput.size() != gModelParameters.ctrl_order)
 		{
 			inputError = true;
 			exception(WRONG_SIZE_OF_CONTROL_ELEMENTS);
