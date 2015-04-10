@@ -28,8 +28,8 @@ namespace uwv_motion_model {
 	friend class TaskBase;
     protected:
 
-	boost::shared_ptr<uwv_dynamic_model::DynamicModel> gMotionModel;
-	uwv_dynamic_model::Parameters    gModelParameters;
+	boost::shared_ptr<underwaterVehicle::DynamicModel> gMotionModel;
+	underwaterVehicle::Parameters    gModelParameters;
 	bool checkInput(base::samples::Joints &controlInput);
 
 	/**

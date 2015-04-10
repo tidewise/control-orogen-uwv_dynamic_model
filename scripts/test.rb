@@ -18,19 +18,17 @@ include Orocos
 
 Orocos.initialize
 
-Orocos.run 'auv_control::ConstantCommand' => 'ConstantCommand',
-           'smith_predictor::EffortToControl' => 'EffortToControl',
-           'auv_control::AccelerationController' => 'AccelerationController',
-           'motion_model::Task' => 'MotionModel' do
+Orocos.run 'auv_control::ConstantCommand'         => 'ConstantCommand',
+           'auv_control::AccelerationController'  => 'AccelerationController',
+           'uwv_motion_model::Task'               => 'MotionModel' do
 #            :valgrind=>['AccelerationController'],
 #            :output => '%m-%p.log' do
              
 
 	## Get the specific task context ##
 	constantCommand        = TaskContext.get 'ConstantCommand'
-	effortToControl        = TaskContext.get 'EffortToControl'
 	accelerationController = TaskContext.get 'AccelerationController'
-	motionModel = TaskContext.get 'MotionModel'
+	motionModel            = TaskContext.get 'MotionModel'
 
   init = constantCommand.cmd
   init.linear[0] = 0
@@ -46,24 +44,21 @@ Orocos.run 'auv_control::ConstantCommand' => 'ConstantCommand',
   ##########################################################################
 
   
-  effortToControl.apply_conf_file("effort_to_control.yml")
-  accelerationController.apply_conf_file("effort_to_control_auv_control.yml",["general_matrix"])
-  motionModel.apply_conf_file("motion_model.yml",["general_matrix"])
+  accelerationController.apply_conf_file("acceleration_controller.yml",["effort_control"])
+  motionModel.apply_conf_file("uwv_motion_model.yml",["effort_control"])
+#  accelerationController.apply_conf_file(config_files_folder+"acceleration_controller.yml",["test_acc_controller"])
+#  motionModel.apply_conf_file(config_files_folder+"uwv_motion_model.yml",["test_acc_controller"])
 
 	##########################################################################
 	#		                    COMPONENT INPUT PORTS
 	##########################################################################
 
-	constantCommand.cmd_out.connect_to effortToControl.cmd_in
-#	effortToControl.cmd_out.connect_to motionModel.cmd_in
 	constantCommand.cmd_out.connect_to accelerationController.cmd_in
 	accelerationController.cmd_out.connect_to motionModel.cmd_in
 	
 	# Configuring and starting the component
   constantCommand.configure
   constantCommand.start
-  effortToControl.configure
-  effortToControl.start
   accelerationController.configure
   accelerationController.start
   motionModel.configure

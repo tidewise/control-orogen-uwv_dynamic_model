@@ -28,7 +28,7 @@ namespace uwv_motion_model {
 
 	// The thruster coefficients are related to the thruster's properties and geometry.
 	//	The positive/negative coefficient is related to the direction in which the thruster moves with a positive/negative input signal.
-	std::vector<uwv_dynamic_model::Direction> CoeffThruster;
+	std::vector<underwaterVehicle::Direction> CoeffThruster;
 
 	// The Thruster Configuration Matrix, TCM has size of 6 * n. n means the count of thrusters that are used.
 	//	It is based on the thrusters direction and position from the center of mass of the AUV in body-frame.

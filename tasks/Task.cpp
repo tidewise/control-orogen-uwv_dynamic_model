@@ -34,7 +34,7 @@ bool Task::configureHook()
     double samplingTime = TaskContext::getPeriod();
 
     // Creating the motion model object
-    gMotionModel.reset(new uwv_dynamic_model::DynamicModel(controlOrder, samplingTime, simPerCycle));
+    gMotionModel.reset(new underwaterVehicle::DynamicModel(controlOrder, samplingTime, simPerCycle));
     gMotionModel->initParameters(gModelParameters);
 
     // Updating the samplingTime at the component property
@@ -226,7 +226,7 @@ void Task::setUncertainty(base::samples::RigidBodyState &states)
 
 bool Task::setNewParameters(void)
 {
-	uwv_dynamic_model::Parameters uwvParameters = _model_parameters.get();
+	underwaterVehicle::Parameters uwvParameters = _model_parameters.get();
 	return gMotionModel->setUWVParameters(uwvParameters);
 }
 

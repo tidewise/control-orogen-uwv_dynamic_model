@@ -13,7 +13,7 @@ task_context "Task" do
   #***    PROPERTIES     ***
   #*************************
 
-  property("model_parameters", "uwv_dynamic_model/Parameters")
+  property("model_parameters", "underwaterVehicle/Parameters")
     .doc("Parameters of the motion model.")
   
   property("control_mode", "uwv_motion_model/ControlMode")
@@ -71,7 +71,7 @@ task_context "ForceApplier" do
     
      # The thruster coefficients are related to the thruster's properties and geometry.
      #  The positive/negative coefficient is related to the direction in which the thruster moves with a positive/negative input signal.
-     property "thruster_coefficients", "std::vector<uwv_dynamic_model::Direction>"    
+     property "thruster_coefficients", "std::vector<underwaterVehicle::Direction>"    
      # The Thruster Configuration Matrix, TCM has size of 6 * n. n means the count of thrusters that are used.
      #  It is based on the thrusters direction and position from the center of mass of the AUV in body-frame.
      #  The first three lines represents the direction of the thrusters and are responsible to establish the forces applied in the vehicle in body-frame.
