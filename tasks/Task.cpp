@@ -40,6 +40,7 @@ bool Task::configureHook()
     // Updating the samplingTime at the component property
     gModelParameters.samplingtime = samplingTime;
     _model_parameters.set(gModelParameters);
+    gLastControlInput = base::Time::fromSeconds(0);
 
     return true;
 }
@@ -81,6 +82,20 @@ void Task::updateHook()
     			gMotionModel->sendEffortCommands(controlInput);
     			break;
     		}
+
+    		// Getting new samplingTime
+    		if(gLastControlInput == base::Time::fromSeconds(0))
+    			gLastControlInput = controlInput.time;
+    		else if ((controlInput.time - gLastControlInput).toSeconds() > 0)
+    		{
+    		    // Updating the samplingTime at the component property
+    			double samplingTime = (controlInput.time - gLastControlInput).toSeconds();
+    		    gModelParameters.samplingtime = samplingTime;
+    		    _model_parameters.set(gModelParameters);
+    			setNewSamplingTime(samplingTime);
+    			gLastControlInput = controlInput.time;
+    		}
+
 
     		// Getting updated states
     		gMotionModel->getPosition(states.position);
@@ -228,6 +243,11 @@ bool Task::setNewParameters(void)
 {
 	underwaterVehicle::Parameters uwvParameters = _model_parameters.get();
 	return gMotionModel->setUWVParameters(uwvParameters);
+}
+
+void Task::setNewSamplingTime(double samplingTime)
+{
+	gMotionModel->setSamplingTime(samplingTime);
 }
 
 void Task::resetStates(void)

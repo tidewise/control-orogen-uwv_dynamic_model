@@ -31,6 +31,7 @@ namespace uwv_motion_model {
 	boost::shared_ptr<underwaterVehicle::DynamicModel> gMotionModel;
 	underwaterVehicle::Parameters    gModelParameters;
 	bool checkInput(base::samples::Joints &controlInput);
+	base::Time gLastControlInput;
 
 	/**
 	 * Transforms a set of coordinates from euler to axis-angle representation
@@ -44,6 +45,7 @@ namespace uwv_motion_model {
 	 * Sets the model parameters according to the model_parameters property
 	 */
 	virtual bool setNewParameters(void);
+	void setNewSamplingTime(double samplingTime);
 
 	/**
 	 * Resets the states of the model (position and velocity)
