@@ -19,11 +19,15 @@ task_context "Task" do
   property("control_mode", "uwv_motion_model/ControlMode")
     .doc("Defines if the control signal is PWM, RPM or EFFORT.")
     
-  property("source_frame", "std/string")
+  property("source_frame", "std/string", "body")
     .doc("Name of the source frame.")
     
-  property("target_frame", "std/string")
+  property("target_frame", "std/string", "world")
     .doc("Name of the target frame.")
+    
+  property("lin_velocity_world_frame", "bool", true)
+    .doc("If TRUE the linear velocity is expressed in the WORLD frame.
+          If FALSE the linear velocity is expressed in the BODY frame.")
 
   property("velocity_uncertainty", "base/Vector6d")
     .doc("Velocity uncertainty values. This values are integrated in order to obtain the pose uncertainty")

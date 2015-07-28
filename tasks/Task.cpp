@@ -107,8 +107,8 @@ void Task::updateHook()
     		// Getting updated states
     		gMotionModel->getPosition(states.position);
     		gMotionModel->getQuatOrienration(states.orientation);
-    		gMotionModel->getLinearVelocity(states.velocity);
-    		gMotionModel->getAngularVelocity(states.angular_velocity);
+    		gMotionModel->getLinearVelocity(states.velocity, _lin_velocity_world_frame.get());
+    		gMotionModel->getAngularVelocity(states.angular_velocity, false);
     		gMotionModel->getLinearAcceleration(secondaryStates.linearAcceleration.acceleration);
     		gMotionModel->getAngularAcceleration(secondaryStates.angularAcceleration.acceleration);
     		gMotionModel->getEfforts(secondaryStates.efforts.values);
