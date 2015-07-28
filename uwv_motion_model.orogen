@@ -52,7 +52,7 @@ task_context "Task" do
         
   operation("resetStates")
   
-  runtime_states :SIMULATING
+  runtime_states :SIMULATING, :INPUT_TIMESTAMP_NOT_SET
   error_states :RAW_FIELD_UNSET, :SPEED_FIELD_UNSET, :EFFORT_FIELD_UNSET
   exception_states :WRONG_SIZE_OF_CONTROL_ELEMENTS
         

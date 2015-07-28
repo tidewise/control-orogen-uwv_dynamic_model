@@ -66,7 +66,14 @@ void Task::updateHook()
     	// Checking if the control input was properly set
     	if(checkInput(controlInput))
     	{
-    		if(state() != SIMULATING)
+    		// Setting the control input timestamp if it's not set
+    		if(controlInput.time == base::Time::fromSeconds(0))
+    		{
+    			controlInput.time = base::Time::now();
+    			if(state() != INPUT_TIMESTAMP_NOT_SET)
+    				state(INPUT_TIMESTAMP_NOT_SET);
+    		}
+    		else if(state() != SIMULATING)
     			state(SIMULATING);
 
     		// Sending control input
