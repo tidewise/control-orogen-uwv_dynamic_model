@@ -163,8 +163,7 @@ bool Task::checkInput(base::samples::Joints &controlInput)
 				if (!controlInput.elements[i].hasRaw())
 				{
 					inputError = true;
-					if(state() != RAW_FIELD_UNSET)
-						error(RAW_FIELD_UNSET);
+					exception(RAW_FIELD_UNSET);
 				}
 			}
 		}
@@ -183,8 +182,7 @@ bool Task::checkInput(base::samples::Joints &controlInput)
 				if (!controlInput.elements[i].hasSpeed())
 				{
 					inputError = true;
-					if(state() != SPEED_FIELD_UNSET)
-						error(SPEED_FIELD_UNSET);
+					exception(SPEED_FIELD_UNSET);
 				}
 			}
 		}
@@ -203,8 +201,7 @@ bool Task::checkInput(base::samples::Joints &controlInput)
 				if (!controlInput.elements[i].hasEffort())
 				{
 					inputError = true;
-					if(state() != EFFORT_FIELD_UNSET)
-						error(EFFORT_FIELD_UNSET);
+					exception(EFFORT_FIELD_UNSET);
 				}
 			}
 		}
@@ -265,15 +262,6 @@ void Task::resetStates(void)
 void Task::errorHook()
 {
     TaskBase::errorHook();
-
-    base::commands::Joints newControlInput;
-
-    if (_cmd_in.readNewest(newControlInput) == RTT::NewData)
-    {
-    	// If there's no input error anymore, the system is recovered to operational state
-    	if(checkInput(newControlInput))
-    		recover();
-    }
 }
 void Task::stopHook()
 {
