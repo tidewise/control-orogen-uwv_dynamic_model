@@ -13,38 +13,38 @@ task_context "Task" do
   #***    PROPERTIES     ***
   #*************************
 
+  # Parameters of the motion model
   property("model_parameters", "underwaterVehicle/Parameters")
-    .doc("Parameters of the motion model.")
   
+  # Defines if the control signal is PWM, RPM or EFFORT
   property("control_mode", "uwv_motion_model/ControlMode")
-    .doc("Defines if the control signal is PWM, RPM or EFFORT.")
-    
-  property("source_frame", "std/string", "body")
-    .doc("Name of the source frame.")
-    
-  property("target_frame", "std/string", "world")
-    .doc("Name of the target frame.")
-    
-  property("lin_velocity_world_frame", "bool", true)
-    .doc("If TRUE the linear velocity is expressed in the WORLD frame.
-          If FALSE the linear velocity is expressed in the BODY frame.")
 
+  # Name of the source frame    
+  property("source_frame", "std/string", "body")
+
+  # Name of the target frame    
+  property("target_frame", "std/string", "world")
+
+  # If TRUE the linear velocity is expressed in the WORLD frame.
+  # If FALSE the linear velocity is expressed in the BODY frame.
+  property("lin_velocity_world_frame", "bool", true)
+
+  # Velocity uncertainty values. This values are integrated in order to obtain the pose uncertainty
   property("velocity_uncertainty", "base/Vector6d")
-    .doc("Velocity uncertainty values. This values are integrated in order to obtain the pose uncertainty")
 
   
   #*************************
   #***     I/O PORTS     ***
   #*************************
 
+  # Thrusters' commands
   input_port("cmd_in", "/base/commands/Joints")
-    .doc("Thrusters' commands.")
 
+  # The new states after the thrusters' commands are applied
   output_port("cmd_out", "/base/samples/RigidBodyState")
-    .doc("The new states after the thrusters' commands are applied.")
     
+  # Effort and acceleration values
   output_port("secondary_states", "uwv_motion_model/SecondaryStates")
-    .doc("Effort and acceleration values.")
 
 
   #*************************
