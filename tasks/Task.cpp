@@ -41,6 +41,7 @@ bool Task::configureHook()
     gModelParameters.samplingtime = samplingTime;
     _model_parameters.set(gModelParameters);
     gLastControlInput = base::Time::fromSeconds(0);
+    states.initUnknown();
 
     return true;
 }
@@ -55,8 +56,6 @@ void Task::updateHook()
     TaskBase::updateHook();
 
     base::commands::Joints controlInput;
-    base::samples::RigidBodyState states;
-    SecondaryStates secondaryStates;
     ControlMode controlMode = _control_mode.get();
     static bool firstRun = true;
 
