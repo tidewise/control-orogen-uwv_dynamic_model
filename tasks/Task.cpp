@@ -133,6 +133,8 @@ void Task::updateHook()
             _cmd_out.write(states);
             _secondary_states.write(secondaryStates);
         }
+        else
+            return;
     }
     else if(firstRun)
     {
@@ -144,17 +146,16 @@ void Task::updateHook()
 bool Task::checkInput(base::samples::Joints &controlInput)
 {
     ControlMode controlMode = _control_mode.get();
-    bool inputError = false;
 
-    // Checks if the controlInput size is correct and then if
+    // Checks whether the controlInput size is correct and then if
     // the correspondent field is set
     switch(controlMode)
     {
     case PWM:
         if(controlInput.size() != gModelParameters.ctrl_order)
         {
-            inputError = true;
             exception(WRONG_SIZE_OF_CONTROL_ELEMENTS);
+            return false;
         }
         else
         {
@@ -162,8 +163,8 @@ bool Task::checkInput(base::samples::Joints &controlInput)
             {
                 if (!controlInput.elements[i].hasRaw())
                 {
-                    inputError = true;
                     exception(RAW_FIELD_UNSET);
+                    return false;
                 }
             }
         }
@@ -172,8 +173,8 @@ bool Task::checkInput(base::samples::Joints &controlInput)
     case RPM:
         if(controlInput.size() != gModelParameters.ctrl_order)
         {
-            inputError = true;
             exception(WRONG_SIZE_OF_CONTROL_ELEMENTS);
+            return false;
         }
         else
         {
@@ -181,8 +182,8 @@ bool Task::checkInput(base::samples::Joints &controlInput)
             {
                 if (!controlInput.elements[i].hasSpeed())
                 {
-                    inputError = true;
                     exception(SPEED_FIELD_UNSET);
+                    return false;
                 }
             }
         }
@@ -191,8 +192,8 @@ bool Task::checkInput(base::samples::Joints &controlInput)
     case EFFORT:
         if(controlInput.size() != 6)
         {
-            inputError = true;
             exception(WRONG_SIZE_OF_CONTROL_ELEMENTS);
+            return false;
         }
         else
         {
@@ -200,16 +201,14 @@ bool Task::checkInput(base::samples::Joints &controlInput)
             {
                 if (!controlInput.elements[i].hasEffort())
                 {
-                    inputError = true;
                     exception(EFFORT_FIELD_UNSET);
+                    return false;
                 }
             }
         }
         break;
     }
-
-    // If everything is fine, inputError = FALSE and the method returns a TRUE value
-    return !inputError;
+    return true;
 }
 
 void Task::eulerToAxisAngle(base::Vector3d &states)
