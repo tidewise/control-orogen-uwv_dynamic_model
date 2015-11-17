@@ -57,7 +57,6 @@ void Task::updateHook()
 
     base::commands::Joints controlInput;
     ControlMode controlMode = _control_mode.get();
-    static bool firstRun = true;
 
     // Updating control input
     if (_cmd_in.readNewest(controlInput) == RTT::NewData)
@@ -134,12 +133,6 @@ void Task::updateHook()
         }
         else
             return;
-    }
-    else if(firstRun)
-    {
-        firstRun = false;
-        states.initUnknown();
-        _cmd_out.write(states);
     }
 }
 bool Task::checkInput(base::samples::Joints &controlInput)
