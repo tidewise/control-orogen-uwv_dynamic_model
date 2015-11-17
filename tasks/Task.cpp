@@ -41,7 +41,7 @@ bool Task::configureHook()
     gModelParameters.samplingtime = samplingTime;
     _model_parameters.set(gModelParameters);
     gLastControlInput = base::Time::fromSeconds(0);
-    states.initUnknown();
+    gStates.initUnknown();
 
     return true;
 }
@@ -101,35 +101,34 @@ void Task::updateHook()
                 gLastControlInput = controlInput.time;
             }
 
-
             // Getting updated states
-            gMotionModel->getPosition(states.position);
-            gMotionModel->getQuatOrienration(states.orientation);
-            gMotionModel->getLinearVelocity(states.velocity, _lin_velocity_world_frame.get());
-            gMotionModel->getAngularVelocity(states.angular_velocity, false);
-            gMotionModel->getLinearAcceleration(secondaryStates.linearAcceleration.acceleration);
-            gMotionModel->getAngularAcceleration(secondaryStates.angularAcceleration.acceleration);
-            gMotionModel->getEfforts(secondaryStates.efforts.values);
+            gMotionModel->getPosition(gStates.position);
+            gMotionModel->getQuatOrienration(gStates.orientation);
+            gMotionModel->getLinearVelocity(gStates.velocity, _lin_velocity_world_frame.get());
+            gMotionModel->getAngularVelocity(gStates.angular_velocity, false);
+            gMotionModel->getLinearAcceleration(gSecondaryStates.linearAcceleration.acceleration);
+            gMotionModel->getAngularAcceleration(gSecondaryStates.angularAcceleration.acceleration);
+            gMotionModel->getEfforts(gSecondaryStates.efforts.values);
 
             // Transforming from euler to axis-angle representation
-            eulerToAxisAngle(states.angular_velocity);
+            eulerToAxisAngle(gStates.angular_velocity);
 
             // Setting the sample time
-            states.time = controlInput.time;
-            secondaryStates.angularAcceleration.time = controlInput.time;
-            secondaryStates.linearAcceleration.time  = controlInput.time;
-            secondaryStates.efforts.time  = controlInput.time;
+            gStates.time = controlInput.time;
+            gSecondaryStates.angularAcceleration.time = controlInput.time;
+            gSecondaryStates.linearAcceleration.time  = controlInput.time;
+            gSecondaryStates.efforts.time  = controlInput.time;
 
             // Setting source and target frame names
-            states.sourceFrame 	= _source_frame.get();
-            states.targetFrame 	= _target_frame.get();
+            gStates.sourceFrame = _source_frame.get();
+            gStates.targetFrame = _target_frame.get();
 
             // Calculating the covariance matrix
-            setUncertainty(states);
+            setUncertainty(gStates);
 
             // Writing the updated states
-            _cmd_out.write(states);
-            _secondary_states.write(secondaryStates);
+            _cmd_out.write(gStates);
+            _secondary_states.write(gSecondaryStates);
         }
         else
             return;
