@@ -33,6 +33,8 @@ namespace uwv_motion_model {
 	underwaterVehicle::Parameters    gModelParameters;
 	bool checkInput(base::samples::Joints &controlInput);
 	base::Time gLastControlInput;
+	base::samples::RigidBodyState gStates;
+	SecondaryStates gSecondaryStates;
 
 	/**
 	 * Transforms a set of coordinates from euler to axis-angle representation
