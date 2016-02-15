@@ -73,8 +73,22 @@ void Task::updateHook()
             }
             else if(state() != SIMULATING)
                 state(SIMULATING);
+            // Ignore the new sample if it has the same time stamp as the previous one
 
-            // Sending control input
+            double samplingTime = (controlInput.time - gLastControlInput).toSeconds();
+            // Getting new samplingTime
+            if(gLastControlInput == base::Time::fromSeconds(0))
+                gLastControlInput = controlInput.time;
+            else if ((controlInput.time - gLastControlInput).toSeconds() > 0)
+            {
+                // Updating the samplingTime at the component property
+                gModelParameters.samplingtime = samplingTime;
+                _model_parameters.set(gModelParameters);
+                setNewSamplingTime(samplingTime);
+                gLastControlInput = controlInput.time;
+            }
+
+                // Sending control input
             switch(controlMode)
             {
             case PWM:
@@ -86,19 +100,6 @@ void Task::updateHook()
             case EFFORT:
                 gMotionModel->sendEffortCommands(controlInput);
                 break;
-            }
-
-            // Getting new samplingTime
-            if(gLastControlInput == base::Time::fromSeconds(0))
-                gLastControlInput = controlInput.time;
-            else if ((controlInput.time - gLastControlInput).toSeconds() > 0)
-            {
-                // Updating the samplingTime at the component property
-                double samplingTime = (controlInput.time - gLastControlInput).toSeconds();
-                gModelParameters.samplingtime = samplingTime;
-                _model_parameters.set(gModelParameters);
-                setNewSamplingTime(samplingTime);
-                gLastControlInput = controlInput.time;
             }
 
             // Getting updated states
@@ -199,6 +200,14 @@ bool Task::checkInput(base::samples::Joints &controlInput)
         }
         break;
     }
+
+    if((controlInput.time - gLastControlInput).toSeconds() == 0)
+    {
+        if(state() != COMMAND_WITH_REPEATED_TIMESTAMP)
+            state(COMMAND_WITH_REPEATED_TIMESTAMP);
+        return false;
+    }
+
     return true;
 }
 
