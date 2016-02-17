@@ -32,10 +32,12 @@ bool Task::configureHook()
     int controlOrder 	= gModelParameters.ctrl_order;
     int simPerCycle 	= gModelParameters.sim_per_cycle;
     double samplingTime = TaskContext::getPeriod();
+    underwaterVehicle::ModelType modelType = _model_type.get();
 
     // Creating the motion model object
     gMotionModel.reset(new underwaterVehicle::DynamicModel(controlOrder, samplingTime, simPerCycle));
     gMotionModel->initParameters(gModelParameters);
+    gMotionModel->setModelType(modelType);
 
     // Updating the samplingTime at the component property
     gModelParameters.samplingtime = samplingTime;
