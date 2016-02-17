@@ -56,12 +56,11 @@ task_context "Task" do
         
   operation("resetStates")
   
-  runtime_states :SIMULATING, :INPUT_TIMESTAMP_NOT_SET
+  runtime_states :SIMULATING, :INPUT_TIMESTAMP_NOT_SET, :COMMAND_WITH_REPEATED_TIMESTAMP
   exception_states :RAW_FIELD_UNSET, :SPEED_FIELD_UNSET, :EFFORT_FIELD_UNSET, 
                    :WRONG_SIZE_OF_CONTROL_ELEMENTS
-        
-  periodic 0.01
 
+  periodic 0.01
 end
 
 
