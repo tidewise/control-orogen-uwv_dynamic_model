@@ -43,6 +43,9 @@ task_context "Task" do
   # Thrusters' commands
   input_port("cmd_in", "/base/commands/Joints")
 
+  # Synchronize model's pose with pose sample from measured data.
+  input_port("sync_pose", "/base/samples/RigidBodyState")
+
   # The new states after the thrusters' commands are applied
   output_port("cmd_out", "/base/samples/RigidBodyState")
     

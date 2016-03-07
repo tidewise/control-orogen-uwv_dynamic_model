@@ -51,6 +51,12 @@ namespace uwv_motion_model {
 	void setNewSamplingTime(double samplingTime);
 
 	/**
+	 * Update states with current pose information
+	 * @param pose information
+	 */
+	void syncPose(base::samples::RigidBodyState const &pose);
+
+	/**
 	 * Resets the states of the model (position and velocity)
 	 */
 	virtual void resetStates(void);

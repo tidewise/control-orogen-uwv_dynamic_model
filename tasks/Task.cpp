@@ -57,6 +57,12 @@ void Task::updateHook()
 {
     TaskBase::updateHook();
 
+    base::samples::RigidBodyState sync_pose;
+    if(_sync_pose.readNewest(sync_pose) == RTT::NewData)
+    {
+        syncPose(sync_pose);
+    }
+
     base::commands::Joints controlInput;
     ControlMode controlMode = _control_mode.get();
 
@@ -257,6 +263,18 @@ void Task::setNewSamplingTime(double samplingTime)
 void Task::resetStates(void)
 {
     gMotionModel->resetStates();
+}
+
+void Task::syncPose(base::samples::RigidBodyState const &pose)
+{
+    if(pose.isValidValue(pose.position) && pose.isValidValue(pose.orientation) && pose.isValidValue(pose.velocity) && pose.isValidValue(pose.angular_velocity))
+    {
+        gMotionModel->setPosition(pose.position);
+        gMotionModel->setOrientation(pose.orientation);
+        gMotionModel->setLinearVelocity(pose.velocity);
+        gMotionModel->setAngularVelocity(pose.angular_velocity);
+    }
+    return;
 }
 
 void Task::errorHook()
