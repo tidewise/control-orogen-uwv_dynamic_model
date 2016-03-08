@@ -70,6 +70,22 @@ task_context "Task" do
 end
 
 
+task_context "VelocityEstimator" do
+    subclasses "Task"
+
+  #*************************
+  #***     I/O PORTS     ***
+  #*************************
+
+  # Dvl linear velocities samples
+  input_port("dvl_samples", "/base/samples/RigidBodyState")
+
+  # IMU orientation samples
+  input_port("imu_orientation", "/base/samples/RigidBodyState")
+
+end
+
+
 
 task_context "ForceApplier" do    
     needs_configuration
