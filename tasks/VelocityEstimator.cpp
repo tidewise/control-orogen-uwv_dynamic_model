@@ -42,18 +42,26 @@ void VelocityEstimator::updateHook()
 
     // Updating linear velocity
     base::samples::RigidBodyState dvl_sample;
-    if (_dvl_samples.readNewest(dvl_sample) == RTT::NewData)
+    if (_dvl_samples.read(dvl_sample) == RTT::NewData)
     {
-        if(dvl_sample.isValidValue(dvl_sample.velocity))
+        if(dvl_sample.hasValidVelocity())
             gMotionModel->setLinearVelocity(dvl_sample.velocity);
     }
 
     // Updating orientation
     base::samples::RigidBodyState imu_sample;
-    if (_imu_orientation.readNewest(imu_sample) == RTT::NewData)
+    if (_imu_orientation.read(imu_sample) == RTT::NewData)
     {
-        if(dvl_sample.isValidValue(imu_sample.orientation))
+        if(dvl_sample.hasValidOrientation())
             gMotionModel->setOrientation(imu_sample.orientation);
+    }
+
+    // Angular velocity
+    base::samples::IMUSensors fog_sample;
+    if (_fog_samples.read(fog_sample) == RTT::NewData)
+    {
+        if(!fog_sample.gyro.hasNaN())
+            gMotionModel->setAngularVelocity(fog_sample.gyro);
     }
 
 }

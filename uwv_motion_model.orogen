@@ -80,6 +80,9 @@ task_context "VelocityEstimator" do
   # IMU orientation samples
   input_port("imu_orientation", "/base/samples/RigidBodyState")
 
+  # Angular velocities samples
+  input_port("fog_samples","/base/samples/IMUSensors")
+
 end
 
 
