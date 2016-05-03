@@ -2,7 +2,7 @@
 
 #include "Task.hpp"
 
-using namespace uwv_motion_model;
+using namespace uwv_dynamic_model;
 
 Task::Task(std::string const& name)
     : TaskBase(name)
@@ -27,23 +27,14 @@ bool Task::configureHook()
     if (! TaskBase::configureHook())
         return false;
 
-    gModelParameters = _model_parameters.get();
-
-    int controlOrder 	= gModelParameters.ctrl_order;
-    int simPerCycle 	= gModelParameters.sim_per_cycle;
-    double samplingTime = TaskContext::getPeriod();
-    underwaterVehicle::ModelType modelType = _model_type.get();
+    model_parameters = _model_parameters.get();
 
     // Creating the motion model object
-    gMotionModel.reset(new underwaterVehicle::DynamicModel(controlOrder, samplingTime, simPerCycle));
-    gMotionModel->initParameters(gModelParameters);
-    gMotionModel->setModelType(modelType);
+    model_simulation.reset(new ModelSimulation(setSimulator(), TaskContext::getPeriod(), _sim_per_cycle.get(), 0));
+    model_simulation->setUWVParameters(model_parameters);
 
-    // Updating the samplingTime at the component property
-    gModelParameters.samplingtime = samplingTime;
-    _model_parameters.set(gModelParameters);
-    gLastControlInput = base::Time::fromSeconds(0);
-    gStates.initUnknown();
+    last_control_input = base::Time::fromSeconds(0);
+    states.initUnknown();
 
     return true;
 }
@@ -57,19 +48,18 @@ void Task::updateHook()
 {
     TaskBase::updateHook();
 
-    base::commands::Joints controlInput;
-    ControlMode controlMode = _control_mode.get();
+    base::LinearAngular6DCommand control_input;
 
     // Updating control input
-    if (_cmd_in.readNewest(controlInput) == RTT::NewData)
+    if (_cmd_in.readNewest(control_input) == RTT::NewData)
     {
         // Checking if the control input was properly set
-        if(checkInput(controlInput))
+        if(checkInput(control_input))
         {
             // Setting the control input timestamp if it's not set
-            if(controlInput.time == base::Time::fromSeconds(0))
+            if(control_input.time == base::Time::fromSeconds(0))
             {
-                controlInput.time = base::Time::now();
+                control_input.time = base::Time::now();
                 if(state() != INPUT_TIMESTAMP_NOT_SET)
                     state(INPUT_TIMESTAMP_NOT_SET);
             }
@@ -77,149 +67,104 @@ void Task::updateHook()
                 state(SIMULATING);
             // Ignore the new sample if it has the same time stamp as the previous one
 
-            double samplingTime = (controlInput.time - gLastControlInput).toSeconds();
+            double sampling_time = (control_input.time - last_control_input).toSeconds();
             // Getting new samplingTime
-            if(gLastControlInput == base::Time::fromSeconds(0))
-                gLastControlInput = controlInput.time;
-            else if ((controlInput.time - gLastControlInput).toSeconds() > 0)
+            if(last_control_input == base::Time::fromSeconds(0))
+                last_control_input = control_input.time;
+            else if ((control_input.time - last_control_input).toSeconds() > 0)
             {
                 // Updating the samplingTime at the component property
-                gModelParameters.samplingtime = samplingTime;
-                _model_parameters.set(gModelParameters);
-                setNewSamplingTime(samplingTime);
-                gLastControlInput = controlInput.time;
+                model_simulation->setSamplingTime(sampling_time);
+                last_control_input = control_input.time;
             }
 
-                // Sending control input
-            switch(controlMode)
-            {
-            case PWM:
-                gMotionModel->sendPWMCommands(controlInput);
-                break;
-            case RPM:
-                gMotionModel->sendRPMCommands(controlInput);
-                break;
-            case EFFORT:
-                gMotionModel->sendEffortCommands(controlInput);
-                break;
-            }
+            // Sending control input
+            // Getting updated states
+            base::Vector6d control;
+            control.head(3) = control_input.linear;
+            control.tail(3) = control_input.angular;
+            states = toRBS(model_simulation->sendEffort(control));
 
             // Getting updated states
-            gMotionModel->getPosition(gStates.position);
-            gMotionModel->getQuatOrienration(gStates.orientation);
-            gMotionModel->getLinearVelocity(gStates.velocity, _lin_velocity_world_frame.get());
-            gMotionModel->getAngularVelocity(gStates.angular_velocity, false);
-            gMotionModel->getLinearAcceleration(gSecondaryStates.linearAcceleration.acceleration);
-            gMotionModel->getAngularAcceleration(gSecondaryStates.angularAcceleration.acceleration);
-            gMotionModel->getEfforts(gSecondaryStates.efforts.values);
-
-            // Transforming from euler to axis-angle representation
-            eulerToAxisAngle(gStates.angular_velocity);
+            AccelerationState acceleration = model_simulation->getAcceleration();
+            secondary_states.linear_acceleration.acceleration = acceleration.linear_acceleration;
+            secondary_states.angular_acceleration.acceleration = acceleration.angular_acceleration;
+            secondary_states.efforts = control_input;
 
             // Setting the sample time
-            gStates.time = controlInput.time;
-            gSecondaryStates.angularAcceleration.time = controlInput.time;
-            gSecondaryStates.linearAcceleration.time  = controlInput.time;
-            gSecondaryStates.efforts.time  = controlInput.time;
+            states.time = control_input.time;
+            secondary_states.angular_acceleration.time = control_input.time;
+            secondary_states.linear_acceleration.time  = control_input.time;
+            secondary_states.efforts  = control_input;
 
             // Setting source and target frame names
-            gStates.sourceFrame = _source_frame.get();
-            gStates.targetFrame = _target_frame.get();
+            states.sourceFrame = _source_frame.get();
+            states.targetFrame = _target_frame.get();
 
             // Calculating the covariance matrix
-            setUncertainty(gStates);
+            setUncertainty(states);
+
+            // Do something with data in derived class
+            handlePoseState(states);
+            handleControlInput(control_input);
 
             // Writing the updated states
-            _cmd_out.write(gStates);
-            _secondary_states.write(gSecondaryStates);
+            _pose_samples.write(states);
+            _secondary_states.write(secondary_states);
         }
         else
             return;
     }
 }
-bool Task::checkInput(base::samples::Joints &controlInput)
+
+bool Task::checkInput(const base::LinearAngular6DCommand &control_input)
 {
-    ControlMode controlMode = _control_mode.get();
-
-    // Checks whether the controlInput size is correct and then if
-    // the correspondent field is set
-    switch(controlMode)
+    if(control_input.linear.hasNaN() || control_input.angular.hasNaN())
     {
-    case PWM:
-        if(controlInput.size() != gModelParameters.ctrl_order)
-        {
-            exception(WRONG_SIZE_OF_CONTROL_ELEMENTS);
-            return false;
-        }
-        else
-        {
-            for (uint i = 0; i < controlInput.size(); i++)
-            {
-                if (!controlInput.elements[i].hasRaw())
-                {
-                    exception(RAW_FIELD_UNSET);
-                    return false;
-                }
-            }
-        }
-        break;
-
-    case RPM:
-        if(controlInput.size() != gModelParameters.ctrl_order)
-        {
-            exception(WRONG_SIZE_OF_CONTROL_ELEMENTS);
-            return false;
-        }
-        else
-        {
-            for (uint i = 0; i < controlInput.size(); i++)
-            {
-                if (!controlInput.elements[i].hasSpeed())
-                {
-                    exception(SPEED_FIELD_UNSET);
-                    return false;
-                }
-            }
-        }
-        break;
-
-    case EFFORT:
-        if(controlInput.size() != 6)
-        {
-            exception(WRONG_SIZE_OF_CONTROL_ELEMENTS);
-            return false;
-        }
-        else
-        {
-            for (uint i = 0; i < controlInput.size(); i++)
-            {
-                if (!controlInput.elements[i].hasEffort())
-                {
-                    exception(EFFORT_FIELD_UNSET);
-                    return false;
-                }
-            }
-        }
-        break;
+        exception(EFFORT_UNSET);
+        return false;
     }
 
-    if((controlInput.time - gLastControlInput).toSeconds() == 0)
+    if((control_input.time - last_control_input).toSeconds() == 0)
     {
         if(state() != COMMAND_WITH_REPEATED_TIMESTAMP)
             state(COMMAND_WITH_REPEATED_TIMESTAMP);
         return false;
     }
-
     return true;
 }
 
-void Task::eulerToAxisAngle(base::Vector3d &states)
+base::samples::RigidBodyState Task::toRBS(const PoseVelocityState &states)
+{
+    base::samples::RigidBodyState new_state;
+    new_state.position = states.position;
+    new_state.orientation = states.orientation;
+    // RBS velocity expressed in target frame, PoseVelocityState velocity expressed in body-frame
+    new_state.velocity = states.orientation.matrix()*states.linear_velocity;
+    // Transforming from euler to axis-angle representation
+    new_state.angular_velocity = eulerToAxisAngle(states.angular_velocity);
+    return new_state;
+}
+
+PoseVelocityState Task::fromRBS(const base::samples::RigidBodyState &states)
+{
+    PoseVelocityState new_state;
+    new_state.position = states.position;
+    new_state.orientation = states.orientation;
+    // RBS velocity expressed in target frame, PoseVelocityState velocity expressed in body-frame
+    new_state.linear_velocity = states.orientation.inverse()*states.velocity;
+    // Transforming axis-angle representation to body frame angular velocity.
+    if(!states.angular_velocity.isZero())
+        new_state.angular_velocity = base::getEuler(base::Orientation(Eigen::AngleAxisd(states.angular_velocity.norm(), states.angular_velocity.normalized())));
+    return new_state;
+}
+
+base::Vector3d Task::eulerToAxisAngle(const base::Vector3d &states)
 {
     Eigen::AngleAxisd axisAngle = Eigen::AngleAxisd(Eigen::AngleAxisd(states(2), Eigen::Vector3d::UnitZ()) *
                                   Eigen::AngleAxisd(states(1), Eigen::Vector3d::UnitY()) *
                                   Eigen::AngleAxisd(states(0), Eigen::Vector3d::UnitX()));
-
-    states = axisAngle.angle() * axisAngle.axis();
+    return axisAngle.angle() * axisAngle.axis();
 }
 
 void Task::setUncertainty(base::samples::RigidBodyState &states)
@@ -243,21 +188,21 @@ void Task::setUncertainty(base::samples::RigidBodyState &states)
     }
 }
 
-bool Task::setNewParameters(void)
-{
-    underwaterVehicle::Parameters uwvParameters = _model_parameters.get();
-    return gMotionModel->setUWVParameters(uwvParameters);
-}
-
-void Task::setNewSamplingTime(double samplingTime)
-{
-    gMotionModel->setSamplingTime(samplingTime);
-}
-
 void Task::resetStates(void)
 {
-    gMotionModel->resetStates();
+    model_simulation->resetStates();
 }
+
+DynamicSimulator* Task::setSimulator(void)
+{
+    simulator = new DynamicKinematicSimulator();
+    return simulator;
+}
+
+void Task::handleControlInput(const base::LinearAngular6DCommand &controlInput)
+{}
+void Task::handlePoseState(const base::samples::RigidBodyState &state)
+{}
 
 void Task::errorHook()
 {
@@ -270,4 +215,5 @@ void Task::stopHook()
 void Task::cleanupHook()
 {
     TaskBase::cleanupHook();
+    delete simulator;
 }

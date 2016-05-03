@@ -1,11 +1,12 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.hpp */
 
-#ifndef UWV_MOTION_MODEL_VELOCITYESTIMATOR_TASK_HPP
-#define UWV_MOTION_MODEL_VELOCITYESTIMATOR_TASK_HPP
+#ifndef UWV_DYNAMIC_MODEL_VELOCITYESTIMATOR_TASK_HPP
+#define UWV_DYNAMIC_MODEL_VELOCITYESTIMATOR_TASK_HPP
 
-#include "uwv_motion_model/VelocityEstimatorBase.hpp"
+#include "uwv_dynamic_model/VelocityEstimatorBase.hpp"
+#include <queue>
 
-namespace uwv_motion_model{
+namespace uwv_dynamic_model{
 
     /*! \class VelocityEstimator
      * \brief The task context provides and requires services. It uses an ExecutionEngine to perform its functions.
@@ -16,7 +17,7 @@ namespace uwv_motion_model{
      * The name of a TaskContext is primarily defined via:
      \verbatim
      deployment 'deployment_name'
-         task('custom_task_name','uwv_motion_model::VelocityEstimator')
+         task('custom_task_name','uwv_dynamic_model::VelocityEstimator')
      end
      \endverbatim
      *  It can be dynamically adapted when the deployment is called with a prefix argument.
@@ -27,13 +28,39 @@ namespace uwv_motion_model{
     protected:
 
 
+    // Secondary simulator, use for replaying old effort data
+	boost::shared_ptr<ModelSimulation> model_simulation2;
+    // Time of last control applied in replayed model.
+    base::Time last_control_input2;
+
+    std::queue<base::LinearAngular6DCommand> queueOfEffort;
+    std::queue<base::samples::RigidBodyState> queueOfstate;
+
+
+    /**
+    * Sets the simulator used. Default is a DynamicKinematicSimulator
+    */
+    DynamicSimulator* setSimulator(void);
+
+    /**
+     * Do something with data in derived class
+     * @param controlInput
+     */
+    void handleControlInput(const base::LinearAngular6DCommand &control_input);
+
+    /**
+     * Do something with data in derived class
+     * @param state
+     */
+    void handlePoseState(const base::samples::RigidBodyState &state);
+
 
     public:
         /** TaskContext constructor for VelocityEstimator
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
          * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
          */
-        VelocityEstimator(std::string const& name = "uwv_motion_model::VelocityEstimator");
+        VelocityEstimator(std::string const& name = "uwv_dynamic_model::VelocityEstimator");
 
         /** TaskContext constructor for VelocityEstimator
          * \param name Name of the task. This name needs to be unique to make it identifiable for nameservices.
