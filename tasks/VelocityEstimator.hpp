@@ -28,32 +28,34 @@ namespace uwv_dynamic_model{
     protected:
 
 
-    // Secondary simulator, use for replaying old effort data
-	boost::shared_ptr<ModelSimulation> model_simulation2;
-    // Time of last control applied in replayed model.
-    base::Time last_control_input2;
+        // Secondary model_simulation, use for replaying old effort data
+        boost::shared_ptr<ModelSimulation> model_simulation2;
 
-    std::queue<base::LinearAngular6DCommand> queueOfEffort;
-    std::queue<base::samples::RigidBodyState> queueOfstate;
+        std::queue<std::pair<base::LinearAngular6DCommand, base::samples::RigidBodyState> > queueOfStates;
 
+        /**
+         * Enqueue pose&effort states
+         * @param pose state
+         * @param effort control_input
+         */
+        void handleStates(const base::samples::RigidBodyState &state, const base::LinearAngular6DCommand &control_input);
 
-    /**
-    * Sets the simulator used. Default is a DynamicKinematicSimulator
-    */
-    DynamicSimulator* setSimulator(void);
+        /**
+         * Update X-Y dvl velocity in pose.
+         * @param pose to be updated
+         * @param dvl_sample new velocity data
+         * @return updated pose
+         */
+        base::samples::RigidBodyState updatePoseWithXYVelocity(const base::samples::RigidBodyState &pose, const base::samples::RigidBodyState &dvl_sample);
 
-    /**
-     * Do something with data in derived class
-     * @param controlInput
-     */
-    void handleControlInput(const base::LinearAngular6DCommand &control_input);
-
-    /**
-     * Do something with data in derived class
-     * @param state
-     */
-    void handlePoseState(const base::samples::RigidBodyState &state);
-
+        /** Replay model simulation.
+         *
+         *  Replay simulation from dvl_sample.time until last control_input data.
+         *  The aim is to update the X-Y linear velocity.
+         *  @param dvl_sample. Use X-Y velocities
+         *  @return updated state
+         */
+         base::samples::RigidBodyState replayModel(const base::samples::RigidBodyState &dvl_sample);
 
     public:
         /** TaskContext constructor for VelocityEstimator
