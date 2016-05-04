@@ -100,7 +100,7 @@ void VelocityEstimator::updateHook()
         if(!dvl_sample.hasValidVelocity())
             return;
         // Pop out old data
-        while(!queueOfStates.empty() && dvl_sample.time < queueOfStates.back().first.time)
+        while(!queueOfStates.empty() && dvl_sample.time < queueOfStates.front().first.time)
             queueOfStates.pop();
         // In case of empty queue, dvl_sample ahead of model_simulation
         if(!queueOfStates.empty())
