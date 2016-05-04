@@ -7,7 +7,7 @@ import_types_from "uwv_dynamic_modelTypes.hpp"
 import_types_from "auv_control"
 
 task_context "Task" do
-
+  abstract
   needs_configuration
 
   #*************************
@@ -50,8 +50,8 @@ task_context "Task" do
 
   operation("resetStates")
 
-  runtime_states :SIMULATING, :INPUT_TIMESTAMP_NOT_SET, :COMMAND_WITH_REPEATED_TIMESTAMP
-  exception_states :EFFORT_UNSET
+  runtime_states :SIMULATING
+  exception_states :EFFORT_UNSET, :INPUT_TIMESTAMP_NOT_SET, :COMMAND_WITH_REPEATED_TIMESTAMP
 
   periodic 0.01
 end
@@ -74,54 +74,3 @@ task_context "VelocityEstimator" do
   input_port("fog_samples","/base/samples/IMUSensors")
 
 end
-
-
-
-#task_context "ForceApplier" do
-#    needs_configuration
-
-     #*************************
-     #***    PROPERTIES     ***
-     #*************************
-
-     # The thruster coefficients are related to the thruster's properties and geometry.
-     #  The positive/negative coefficient is related to the direction in which the thruster moves with a positive/negative input signal.
-#     property "thruster_coefficients", "std::vector<uwv_dynamic_model::Direction>"
-     # The Thruster Configuration Matrix, TCM has size of 6 * n. n means the count of thrusters that are used.
-     #  It is based on the thrusters direction and position from the center of mass of the AUV in body-frame.
-     #  The first three lines represents the direction of the thrusters and are responsible to establish the forces applied in the vehicle in body-frame.
-     #  The last three lines represents the position of the thrusters and are responsible to establish the torques applied in body-frame.
-     #  The thruster-frame of each thruster should be take in account when composing the TCM.
-     #  A positive/negative input signal in the thruster makes it move in forward/backward direction in thruster-frame (observable during tests).
-#     property "TCM", "base::MatrixXd"
-     # If left empty, uses RAW by default
-#    property "control_modes", "std::vector<base::JointState::MODE>"
-     # In case the control mode is PWM, used to convert the signal into DC Voltage
-#     property "thrusterVoltage", "double", 0
-     # Names of the thrusters
-     # Leave empty to use no names
-#     property "names", "std::vector<std::string>"
-     # If true, will not write the output. The forces may be treated in other task if ForceApplier is used as subclasses
-#     property "treatOutput", "bool", false
-
-
-     #*************************
-     #***     I/O PORTS     ***
-     #*************************
-
-     ## Thrusters signal
-#     input_port('thruster_samples', '/base/samples/Joints').
-#        doc("thrusters signal")
-
-     ## Forces and torques applied in the vehicle in body-frame
-#     output_port('forces', '/base/samples/Joints').
-#        doc("Forces applied in the auv. Convert the input signal into forces and apply the thruster matrix.")
-     ## Forces and signals applied for each thruster in the vehicle
-#     output_port('thruster_forces', '/base/samples/Joints').
-#        doc("Forces and signals applied by each thruster in the auv.")
-
-#     exception_states :WRONG_SIZE_OF_CONTROLMODES, :WRONG_SIZE_OF_THRUSTER_COEFFICIENTS, :WRONG_SIZE_OF_NAMES,
-#                      :UNSET_THRUSTER_INPUT, :UNEXPECTED_THRUSTER_INPUT
-
-#     port_driven
-#end

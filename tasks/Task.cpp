@@ -27,14 +27,11 @@ bool Task::configureHook()
     if (! TaskBase::configureHook())
         return false;
 
-    model_parameters = _model_parameters.get();
-
     // Creating the motion model object
-    model_simulation.reset(new ModelSimulation(setSimulator(), TaskContext::getPeriod(), _sim_per_cycle.get(), 0));
-    model_simulation->setUWVParameters(model_parameters);
+    model_simulation.reset(new ModelSimulation(simulator, TaskContext::getPeriod(), _sim_per_cycle.get(), 0));
+    model_simulation->setUWVParameters(_model_parameters.get());
 
     last_control_input = base::Time::fromSeconds(0);
-    states.initUnknown();
 
     return true;
 }
@@ -42,6 +39,7 @@ bool Task::startHook()
 {
     if (! TaskBase::startHook())
         return false;
+
     return true;
 }
 void Task::updateHook()
@@ -49,72 +47,36 @@ void Task::updateHook()
     TaskBase::updateHook();
 
     base::LinearAngular6DCommand control_input;
+    base::samples::RigidBodyState pose;
 
-    // Updating control input
-    if (_cmd_in.readNewest(control_input) == RTT::NewData)
-    {
-        // Checking if the control input was properly set
-        if(checkInput(control_input))
-        {
-            // Setting the control input timestamp if it's not set
-            if(control_input.time == base::Time::fromSeconds(0))
-            {
-                control_input.time = base::Time::now();
-                if(state() != INPUT_TIMESTAMP_NOT_SET)
-                    state(INPUT_TIMESTAMP_NOT_SET);
-            }
-            else if(state() != SIMULATING)
-                state(SIMULATING);
-            // Ignore the new sample if it has the same time stamp as the previous one
+    if (_cmd_in.readNewest(control_input) != RTT::NewData)
+        return;
+    if(!checkInput(control_input))
+        return;
 
-            double sampling_time = (control_input.time - last_control_input).toSeconds();
-            // Getting new samplingTime
-            if(last_control_input == base::Time::fromSeconds(0))
-                last_control_input = control_input.time;
-            else if ((control_input.time - last_control_input).toSeconds() > 0)
-            {
-                // Updating the samplingTime at the component property
-                model_simulation->setSamplingTime(sampling_time);
-                last_control_input = control_input.time;
-            }
+    // Getting new samplingTime. Useful when there is no periodicity in input
+    double sampling_time = (control_input.time - last_control_input).toSeconds();
+    if (sampling_time > 0 && last_control_input != base::Time::fromSeconds(0))
+        model_simulation->setSamplingTime(sampling_time);
+    last_control_input = control_input.time;
 
-            // Sending control input
-            // Getting updated states
-            base::Vector6d control;
-            control.head(3) = control_input.linear;
-            control.tail(3) = control_input.angular;
-            states = toRBS(model_simulation->sendEffort(control));
+    // Sending control input & getting updated states
+    pose = toRBS(model_simulation->sendEffort(toVector6d(control_input)));
 
-            // Getting updated states
-            AccelerationState acceleration = model_simulation->getAcceleration();
-            secondary_states.linear_acceleration.acceleration = acceleration.linear_acceleration;
-            secondary_states.angular_acceleration.acceleration = acceleration.angular_acceleration;
-            secondary_states.efforts = control_input;
+    pose.time = control_input.time;
+    pose.sourceFrame = _source_frame.get();
+    pose.targetFrame = _target_frame.get();
 
-            // Setting the sample time
-            states.time = control_input.time;
-            secondary_states.angular_acceleration.time = control_input.time;
-            secondary_states.linear_acceleration.time  = control_input.time;
-            secondary_states.efforts  = control_input;
+    // Calculating the covariance matrix
+    setUncertainty(pose);
 
-            // Setting source and target frame names
-            states.sourceFrame = _source_frame.get();
-            states.targetFrame = _target_frame.get();
+    // Do something with data in derived class
+    handleStates(pose, control_input);
 
-            // Calculating the covariance matrix
-            setUncertainty(states);
+    // Writing the updated states
+    _pose_samples.write(pose);
+    _secondary_states.write(getSecondaryStates(control_input, model_simulation->getAcceleration()));
 
-            // Do something with data in derived class
-            handlePoseState(states);
-            handleControlInput(control_input);
-
-            // Writing the updated states
-            _pose_samples.write(states);
-            _secondary_states.write(secondary_states);
-        }
-        else
-            return;
-    }
 }
 
 bool Task::checkInput(const base::LinearAngular6DCommand &control_input)
@@ -125,12 +87,20 @@ bool Task::checkInput(const base::LinearAngular6DCommand &control_input)
         return false;
     }
 
-    if((control_input.time - last_control_input).toSeconds() == 0)
+    if(control_input.time == base::Time::fromSeconds(0))
     {
-        if(state() != COMMAND_WITH_REPEATED_TIMESTAMP)
-            state(COMMAND_WITH_REPEATED_TIMESTAMP);
+        exception(INPUT_TIMESTAMP_NOT_SET);
         return false;
     }
+
+    if((control_input.time - last_control_input).toSeconds() <= 0)
+    {
+        exception(COMMAND_WITH_REPEATED_TIMESTAMP);
+        return false;
+    }
+
+    if(state() != SIMULATING)
+        state(SIMULATING);
     return true;
 }
 
@@ -157,6 +127,25 @@ PoseVelocityState Task::fromRBS(const base::samples::RigidBodyState &states)
     if(!states.angular_velocity.isZero())
         new_state.angular_velocity = base::getEuler(base::Orientation(Eigen::AngleAxisd(states.angular_velocity.norm(), states.angular_velocity.normalized())));
     return new_state;
+}
+
+base::Vector6d Task::toVector6d(const base::LinearAngular6DCommand &control_input)
+{
+    base::Vector6d control;
+    control.head(3) = control_input.linear;
+    control.tail(3) = control_input.angular;
+    return control;
+}
+
+SecondaryStates Task::getSecondaryStates(const base::LinearAngular6DCommand &control_input, const AccelerationState &acceleration)
+{
+    SecondaryStates secondary_states;
+    secondary_states.linear_acceleration.acceleration = acceleration.linear_acceleration;
+    secondary_states.angular_acceleration.acceleration = acceleration.angular_acceleration;
+    secondary_states.angular_acceleration.time = control_input.time;
+    secondary_states.linear_acceleration.time  = control_input.time;
+    secondary_states.efforts = control_input;
+    return secondary_states;
 }
 
 base::Vector3d Task::eulerToAxisAngle(const base::Vector3d &states)
@@ -193,15 +182,12 @@ void Task::resetStates(void)
     model_simulation->resetStates();
 }
 
-DynamicSimulator* Task::setSimulator(void)
+void Task::setSimulator(DynamicSimulator* simulator)
 {
-    simulator = new DynamicKinematicSimulator();
-    return simulator;
+   this->simulator = simulator;
 }
 
-void Task::handleControlInput(const base::LinearAngular6DCommand &controlInput)
-{}
-void Task::handlePoseState(const base::samples::RigidBodyState &state)
+void Task::handleStates(const base::samples::RigidBodyState &state, const base::LinearAngular6DCommand &control_input)
 {}
 
 void Task::errorHook()

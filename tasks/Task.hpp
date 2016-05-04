@@ -30,10 +30,7 @@ namespace uwv_dynamic_model {
 
 	boost::shared_ptr<ModelSimulation> model_simulation;
 	DynamicSimulator* simulator;
-	UWVParameters    model_parameters;
 	base::Time last_control_input;
-	base::samples::RigidBodyState states;
-	SecondaryStates secondary_states;
 
     /**
 	 *  Check controlInput for NaN and repeated timestamp.
@@ -50,6 +47,16 @@ namespace uwv_dynamic_model {
      */
 	PoseVelocityState fromRBS(const base::samples::RigidBodyState &states);
 
+    /**
+     *  Convert LinearAngular6DCommand representation to Vector6d
+     */
+	base::Vector6d toVector6d(const base::LinearAngular6DCommand &control_input);
+
+    /**
+     *  Get secondary states
+     */
+	SecondaryStates getSecondaryStates(const base::LinearAngular6DCommand &control_input, const AccelerationState &acceleration);
+
 	/**
 	 * Transforms a set of coordinates from euler to axis-angle representation
 	 */
@@ -60,21 +67,16 @@ namespace uwv_dynamic_model {
 	void setUncertainty(base::samples::RigidBodyState &states);
 
     /**
-    * Sets the simulator used. Default is a DynamicKinematicSimulator
+    * Sets the simulator used.
     */
-    virtual DynamicSimulator* setSimulator(void);
-
-    /**
-	 * Do something with data in derived class
-	 * @param controlInput
-	 */
-	virtual void handleControlInput(const base::LinearAngular6DCommand &control_input);
+	void setSimulator(DynamicSimulator* simulator);
 
     /**
      * Do something with data in derived class
-     * @param state
+     * @param pose state
+     * @param effort control_input
      */
-	virtual void handlePoseState(const base::samples::RigidBodyState &state);
+	virtual void handleStates(const base::samples::RigidBodyState &state, const base::LinearAngular6DCommand &control_input);
 
 	/**
 	 * Resets the states of the model (position and velocity)
