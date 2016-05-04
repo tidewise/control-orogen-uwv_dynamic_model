@@ -48,17 +48,17 @@ base::samples::RigidBodyState VelocityEstimator::replayModel(const base::samples
     // After replaying the model and updating pose states, queueOfStates is replaced with updated states.
     while(!queueOfStates.empty())
     {
-        temp_pose = updatePoseWithXYVelocity(queueOfStates.back().second, temp_pose);
+        temp_pose = updatePoseWithXYVelocity(queueOfStates.front().second, temp_pose);
         // Queue with updated states
-        tempQueueOfStates.push(std::make_pair(queueOfStates.back().first, temp_pose));
+        tempQueueOfStates.push(std::make_pair(queueOfStates.front().first, temp_pose));
 
         // Getting new samplingTime. Useful when there is no periodicity in input
-        double sampling_time = (queueOfStates.back().first.time - last_control_input2).toSeconds();
+        double sampling_time = (queueOfStates.front().first.time - last_control_input2).toSeconds();
         if (sampling_time > 0 && last_control_input2 != base::Time::fromSeconds(0))
             model_simulation2->setSamplingTime(sampling_time);
-        last_control_input2 = queueOfStates.back().first.time;
+        last_control_input2 = queueOfStates.front().first.time;
 
-        temp_pose = toRBS(model_simulation2->sendEffort(toVector6d(queueOfStates.back().first), fromRBS(temp_pose)));
+        temp_pose = toRBS(model_simulation2->sendEffort(toVector6d(queueOfStates.front().first), fromRBS(temp_pose)));
 
         queueOfStates.pop();
     }
@@ -100,7 +100,7 @@ void VelocityEstimator::updateHook()
         if(!dvl_sample.hasValidVelocity())
             return;
         // Pop out old data
-        while(!queueOfStates.empty() && dvl_sample.time < queueOfStates.front().first.time)
+        while(!queueOfStates.empty() && dvl_sample.time > queueOfStates.front().first.time)
             queueOfStates.pop();
         // In case of empty queue, dvl_sample ahead of model_simulation
         if(!queueOfStates.empty())
