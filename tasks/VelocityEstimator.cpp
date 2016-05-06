@@ -67,6 +67,12 @@ base::samples::RigidBodyState VelocityEstimator::replayModel(const base::samples
     return queueOfStates.front().second;
 }
 
+// TODO implement a way to estimated vertical velocity
+double VelocityEstimator::verticalVelocityEstimation(const base::samples::RigidBodyState &depth_sample)
+{
+    return depth_sample.velocity[2];
+}
+
 /// The following lines are template definitions for the various state machine
 // hooks defined by Orocos::RTT. See VelocityEstimator.hpp for more detailed
 // documentation about them.
@@ -130,6 +136,19 @@ void VelocityEstimator::updateHook()
         // TODO need validation
         base::samples::RigidBodyState temp_pose = toRBS(model_simulation->getPose());
         temp_pose.angular_velocity = fog_sample.gyro;
+        model_simulation->setPose(fromRBS(temp_pose));
+    }
+
+    // Vertical velocity
+    // Derived from pressure sensor. Assuming high rate sampling time, timestamp is not take in account.
+    base::samples::RigidBodyState depth_sample;
+    if (_depth_samples.read(depth_sample) == RTT::NewData)
+    {
+        if(!depth_sample.hasValidPosition(2))
+            return;
+        // TODO derived vertical position to vertical velocity
+        base::samples::RigidBodyState temp_pose = toRBS(model_simulation->getPose());
+        temp_pose.velocity[2] = verticalVelocityEstimation(depth_sample);
         model_simulation->setPose(fromRBS(temp_pose));
     }
 }

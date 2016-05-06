@@ -73,4 +73,7 @@ task_context "VelocityEstimator" do
   # Angular velocities samples
   input_port("fog_samples","/base/samples/IMUSensors")
 
+  # Depth in water, relative to the surface. Derivated for vertical velocity estimation.
+  input_port("depth_samples", "base::samples::RigidBodyState")
+
 end

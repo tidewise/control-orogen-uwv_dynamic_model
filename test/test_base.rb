@@ -123,7 +123,7 @@ it 'add dvl data in velocity estimator' do
       number = i/(100*(i+10)).to_f
       vx = i/(i+10).to_f + RANDOM_GENERATOR.rand(-number..number)
       dvl = dvl_data(vx, 0)
-      dvl.time = sample.time + RANDOM_GENERATOR.rand(-0.01..0.01)
+      dvl.time = sample.time + RANDOM_GENERATOR.rand(-0.01..0.01) - 2
       dvl_samples.write dvl
     end
     cmd_in.write sample

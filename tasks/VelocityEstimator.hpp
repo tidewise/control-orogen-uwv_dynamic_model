@@ -48,6 +48,13 @@ namespace uwv_dynamic_model{
          */
         base::samples::RigidBodyState updatePoseWithXYVelocity(const base::samples::RigidBodyState &pose, const base::samples::RigidBodyState &dvl_sample);
 
+        /**
+         * Estimate Z velocity, based on depth derivative.
+         * @param depth_sample
+         * @return estiamted z velocity
+         */
+         double verticalVelocityEstimation(const base::samples::RigidBodyState &depth_sample);
+
         /** Replay model simulation.
          *
          *  Replay simulation from dvl_sample.time until last control_input data.
