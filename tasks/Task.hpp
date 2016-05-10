@@ -28,7 +28,7 @@ namespace uwv_dynamic_model {
 	friend class TaskBase;
     protected:
 
-	boost::shared_ptr<ModelSimulation> model_simulation;
+	ModelSimulation* model_simulation;
 	DynamicSimulator* simulator;
 	base::Time last_control_input;
 

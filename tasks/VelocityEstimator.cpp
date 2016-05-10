@@ -7,12 +7,15 @@ using namespace uwv_dynamic_model;
 VelocityEstimator::VelocityEstimator(std::string const& name)
     : VelocityEstimatorBase(name)
 {
+    model_simulation2 = NULL;
     setSimulator(new DynamicSimulator());
 }
 
 VelocityEstimator::VelocityEstimator(std::string const& name, RTT::ExecutionEngine* engine)
     : VelocityEstimatorBase(name, engine)
 {
+    model_simulation2 = NULL;
+    setSimulator(new DynamicSimulator());
 }
 
 VelocityEstimator::~VelocityEstimator()
@@ -93,11 +96,11 @@ bool VelocityEstimator::configureHook()
         return false;
 
     // Creating the second motion model object
-    model_simulation2.reset(new ModelSimulation(simulator, TaskContext::getPeriod(), _sim_per_cycle.get(), 0));
+    delete model_simulation2;
+    model_simulation2 = new ModelSimulation(simulator, TaskContext::getPeriod(), _sim_per_cycle.get(), 0);
     model_simulation2->setUWVParameters(_model_parameters.get());
 
     // Vertical velocity filter
-    amount_depth_samples = _half_width.get()*2+1;
     numeric::SavitzkyGolayFilter(filter_coeff, _least_square_point.get(), _half_width.get(), _polynomial_order.get(), 1);
 
     return true;
@@ -160,7 +163,6 @@ void VelocityEstimator::updateHook()
     {
         if(!depth_sample.hasValidPosition(2))
             return;
-        // TODO derived vertical position to vertical velocity
         base::samples::RigidBodyState temp_pose = toRBS(model_simulation->getPose());
         temp_pose.velocity[2] = verticalVelocityEstimation(depth_sample);
         temp_pose.position[2] = depth_sample.position[2];
@@ -179,6 +181,7 @@ void VelocityEstimator::cleanupHook()
 {
     VelocityEstimatorBase::cleanupHook();
 
+    delete model_simulation2;
     while( !queueOfDepthData.empty())
         queueOfDepthData.pop_front();
     while( !queueOfStates.empty())

@@ -7,11 +7,13 @@ using namespace uwv_dynamic_model;
 Task::Task(std::string const& name)
     : TaskBase(name)
 {
+    model_simulation = NULL;
 }
 
 Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
     : TaskBase(name, engine)
 {
+    model_simulation = NULL;
 }
 
 Task::~Task()
@@ -28,7 +30,8 @@ bool Task::configureHook()
         return false;
 
     // Creating the motion model object
-    model_simulation.reset(new ModelSimulation(simulator, TaskContext::getPeriod(), _sim_per_cycle.get(), 0));
+    delete model_simulation;
+    model_simulation = new ModelSimulation(simulator, TaskContext::getPeriod(), _sim_per_cycle.get(), 0);
     model_simulation->setUWVParameters(_model_parameters.get());
 
     last_control_input = base::Time::fromSeconds(0);
@@ -201,5 +204,6 @@ void Task::stopHook()
 void Task::cleanupHook()
 {
     TaskBase::cleanupHook();
+    delete model_simulation;
     delete simulator;
 }

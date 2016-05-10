@@ -12,13 +12,12 @@
 
 namespace uwv_dynamic_model
 {
-	struct SecondaryStates
-	{
-		base::samples::RigidBodyAcceleration linear_acceleration;
-		base::samples::RigidBodyAcceleration angular_acceleration;
-		base::LinearAngular6DCommand					 efforts;
-	};
-
+    struct SecondaryStates
+    {
+        base::samples::RigidBodyAcceleration    linear_acceleration;
+        base::samples::RigidBodyAcceleration    angular_acceleration;
+        base::LinearAngular6DCommand            efforts;
+    };
 }
 
 #endif
