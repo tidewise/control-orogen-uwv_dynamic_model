@@ -8,6 +8,7 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
   reader 'velocity_estimator', 'pose_samples', :attr_name => 'pose_samples'
   writer 'velocity_estimator', 'cmd_in', :attr_name => 'cmd_in'
   writer 'velocity_estimator', 'dvl_samples', :attr_name => 'dvl_samples'
+  writer 'velocity_estimator', 'depth_samples', :attr_name => 'depth_samples'
   writer 'velocity_estimator', 'imu_orientation', :attr_name => 'imu_orientation'
   writer 'velocity_estimator', 'fog_samples', :attr_name => 'fog_samples'
 
@@ -25,9 +26,18 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
       sample.time = Time.now
       sample.velocity[0] = x
       sample.velocity[1] = y
-      sample.velocity[2] = y
+      sample.velocity[2] = 0
       sample
   end
+
+def depth_data(z)
+    sample = velocity_estimator.depth_samples.new_sample
+    sample.time = Time.now
+    sample.position[0] = 0
+    sample.position[1] = 0
+    sample.position[2] = z
+    sample
+end
 
   it 'add input in model' do
 
@@ -81,28 +91,12 @@ it 'input with repeated timestamp' do
   velocity_estimator.configure
   velocity_estimator.start
 
-  for i in 0..100
-    sample = zero_command
-    sample.time = sample.time + 0.01*i
-    if i == 90
-      repeated_time = sample.time
-    end
-    if i == 91
-      sample.time = repeated_time
-    end
-    sample.linear[0] = 2
-    cmd_in.write sample
+  sample = zero_command
+  cmd_in.write sample
+  data = assert_has_one_new_sample pose_samples, 1
+  cmd_in.write sample
+  assert_state_change(velocity_estimator, timeout = 1) { |state| state == :COMMAND_WITH_REPEATED_TIMESTAMP }
 
-    begin
-        data = assert_has_one_new_sample pose_samples, 1
-    rescue Exception
-        puts velocity_estimator.state
-        # How does assert_state_change for exception state works??
-        #assert_state_change(velocity_estimator) { |s| s == :COMMAND_WITH_REPEATED_TIMESTAMP }
-      raise
-    end
-
-  end
 end
 
 
@@ -137,6 +131,142 @@ it 'add dvl data in velocity estimator' do
   assert (data.angular_velocity[0] + 0).abs < 0.001
   assert (data.angular_velocity[1] + 0).abs < 0.001
   assert (data.angular_velocity[2] + 0).abs < 0.001
+end
+
+it 'add depth data in velocity estimator. constant vertical velocity' do
+
+  velocity_estimator.apply_conf_file("uwv_dynamic_model.yml",['simple_case_no_vertical_damping'])
+
+  velocity_estimator.configure
+  velocity_estimator.start
+
+  z_position = -10
+  z_velocity = 0.1
+  last_time = 0
+  step = 0.01
+
+  sample = zero_command
+  depth =  depth_data(z_position)
+
+  for i in 0..100
+
+    sample.time = sample.time + step
+    depth.time = sample.time
+
+    z_position = z_position + z_velocity * step
+    depth.position[2] =  z_position
+    sleep(0.01)
+
+    cmd_in.write sample
+    depth_samples.write depth
+  end
+
+  data = assert_has_one_new_sample pose_samples, 1
+  assert (data.velocity[2] - z_velocity).abs < 0.001
+end
+
+it 'add depth data in velocity estimator. constant vertical velocity with influency of vertical damping' do
+
+  velocity_estimator.apply_conf_file("uwv_dynamic_model.yml",['simple_case'])
+
+  velocity_estimator.configure
+  velocity_estimator.start
+
+  z_position = -10
+  z_velocity = 0.1
+  last_time = 0
+  step = 0.01
+
+  sample = zero_command
+  depth =  depth_data(z_position)
+
+  for i in 0..100
+
+    sample.time = sample.time + step
+    depth.time = sample.time
+
+    z_position = z_position + z_velocity * step
+    depth.position[2] =  z_position
+    sleep(0.01)
+
+    cmd_in.write sample
+    depth_samples.write depth
+  end
+
+  data = assert_has_one_new_sample pose_samples, 1
+  assert (data.velocity[2] - z_velocity).abs > 0.001
+assert (data.velocity[2] - z_velocity).abs < 0.01
+end
+
+it 'add depth data in velocity estimator. varing vertical velocity' do
+
+  velocity_estimator.apply_conf_file("uwv_dynamic_model.yml",['simple_case_no_vertical_damping'])
+
+  velocity_estimator.configure
+  velocity_estimator.start
+
+  z_position = -10
+  z_vel_amplitude = 0.1
+  z_vel_frequency = 0.1
+  z_velocity = 0
+
+  step = 0.01
+
+  sample = zero_command
+  depth =  depth_data(z_position)
+
+  for i in 0..100
+
+    sample.time = sample.time + step
+    depth.time = sample.time
+
+    depth.position[2] =  z_position + z_vel_amplitude*Math.sin(z_vel_frequency * sample.time.to_f)
+    z_velocity = z_vel_amplitude * z_vel_frequency * Math.cos(z_vel_frequency * sample.time.to_f)
+    sleep(0.01)
+
+    cmd_in.write sample
+    depth_samples.write depth
+  end
+
+  data = assert_has_one_new_sample pose_samples, 1
+  assert (data.velocity[2] - z_velocity).abs < 0.001
+end
+
+it 'add depth data in velocity estimator. filtering high frequency noise' do
+
+  velocity_estimator.apply_conf_file("uwv_dynamic_model.yml",['simple_case_no_vertical_damping'])
+
+  velocity_estimator.configure
+  velocity_estimator.start
+
+  z_position = -10
+  z_vel_amplitude = 0.1
+  z_vel_frequency = 0.1
+  z_velocity = 0
+
+  step = 0.01
+
+  sample = zero_command
+  depth =  depth_data(z_position)
+
+  for i in 0..100
+
+    sample.time = sample.time + step
+    depth.time = sample.time
+
+    depth.position[2] =  z_position + z_vel_amplitude * Math.sin(z_vel_frequency * sample.time.to_f)
+                                    + z_vel_amplitude/100 * Math.sin(z_vel_frequency*100 * sample.time.to_f)
+
+    # Analytically derive component with the smaller frequencies
+    z_velocity = z_vel_amplitude * z_vel_frequency * Math.cos(z_vel_frequency * sample.time.to_f)
+    sleep(0.01)
+
+    cmd_in.write sample
+    depth_samples.write depth
+  end
+
+  data = assert_has_one_new_sample pose_samples, 1
+  assert (data.velocity[2] - z_velocity).abs < 0.001
 end
 
 end

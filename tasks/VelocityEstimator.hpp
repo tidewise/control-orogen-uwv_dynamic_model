@@ -5,6 +5,9 @@
 
 #include "uwv_dynamic_model/VelocityEstimatorBase.hpp"
 #include <queue>
+#include <deque>
+#include <vector>
+#include "numeric/SavitzkyGolayFilter.hpp"
 
 namespace uwv_dynamic_model{
 
@@ -28,8 +31,16 @@ namespace uwv_dynamic_model{
     protected:
 
 
-        // Secondary model_simulation, use for replaying old effort data
+        // Secondary model_simulation, use for replaying old effort data and time allying dvl data
         boost::shared_ptr<ModelSimulation> model_simulation2;
+
+        // Deriving depth data for estimating vertical velocity
+        // Savitzky-Golay coefficients.
+        std::vector<double> filter_coeff;
+        // number of depth samples used in filter.
+        int amount_depth_samples;
+        // Depth data samples
+        std::deque<base::samples::RigidBodyState> queueOfDepthData;
 
         std::queue<std::pair<base::LinearAngular6DCommand, base::samples::RigidBodyState> > queueOfStates;
 

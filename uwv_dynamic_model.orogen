@@ -1,6 +1,7 @@
 name "uwv_dynamic_model"
 
 using_library "uwv_dynamic_model"
+using_library "numeric"
 import_types_from "base"
 import_types_from "uwv_dynamic_model/DataTypes.hpp"
 import_types_from "uwv_dynamic_modelTypes.hpp"
@@ -59,6 +60,22 @@ end
 
 task_context "VelocityEstimator" do
   subclasses "Task"
+
+  #*************************
+  #***    PROPERTIES     ***
+  #*************************
+
+  # Savitzky Golay filter properties
+  # Used in deriving depth data for getting vertical velocity
+  #
+  # Order of polynomial
+  property("polynomial_order", "int", 3)
+
+  # Half_witdh. (half_width*2 +1) number of sampels used.
+  property("half_width", "int", 16)
+
+  # Least_square point used. Choose between [-half_witdh, half_witdh]
+  property("least_square_point", "int", 16)
 
   #*************************
   #***     I/O PORTS     ***

@@ -10,4 +10,5 @@
   <depend package="base/cmake" />
   <depend package="control/uwv_dynamic_model"/>
   <depend package="control/orogen/auv_control"/>
+  <depend package="base/numeric"/>
 </package>

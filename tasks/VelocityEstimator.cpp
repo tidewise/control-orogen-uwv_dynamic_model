@@ -67,10 +67,20 @@ base::samples::RigidBodyState VelocityEstimator::replayModel(const base::samples
     return queueOfStates.front().second;
 }
 
-// TODO implement a way to estimated vertical velocity
 double VelocityEstimator::verticalVelocityEstimation(const base::samples::RigidBodyState &depth_sample)
 {
-    return depth_sample.velocity[2];
+    queueOfDepthData.push_back(depth_sample);
+    double vertical_velocity = 0;
+    if(queueOfDepthData.size() == filter_coeff.size() )
+    {
+        for (int i = 0; i < queueOfDepthData.size(); ++i)
+            vertical_velocity += queueOfDepthData.at(i).position[2] * filter_coeff[i];
+        // Moving Average Filter for step
+        double step = (queueOfDepthData.back().time - queueOfDepthData.front().time).toSeconds() / (queueOfDepthData.size()-1) ;
+        vertical_velocity /= step;
+        queueOfDepthData.pop_front();
+    }
+    return vertical_velocity;
 }
 
 /// The following lines are template definitions for the various state machine
@@ -85,6 +95,10 @@ bool VelocityEstimator::configureHook()
     // Creating the second motion model object
     model_simulation2.reset(new ModelSimulation(simulator, TaskContext::getPeriod(), _sim_per_cycle.get(), 0));
     model_simulation2->setUWVParameters(_model_parameters.get());
+
+    // Vertical velocity filter
+    amount_depth_samples = _half_width.get()*2+1;
+    numeric::SavitzkyGolayFilter(filter_coeff, _least_square_point.get(), _half_width.get(), _polynomial_order.get(), 1);
 
     return true;
 }
@@ -149,6 +163,7 @@ void VelocityEstimator::updateHook()
         // TODO derived vertical position to vertical velocity
         base::samples::RigidBodyState temp_pose = toRBS(model_simulation->getPose());
         temp_pose.velocity[2] = verticalVelocityEstimation(depth_sample);
+        temp_pose.position[2] = depth_sample.position[2];
         model_simulation->setPose(fromRBS(temp_pose));
     }
 }
@@ -163,4 +178,9 @@ void VelocityEstimator::stopHook()
 void VelocityEstimator::cleanupHook()
 {
     VelocityEstimatorBase::cleanupHook();
+
+    while( !queueOfDepthData.empty())
+        queueOfDepthData.pop_front();
+    while( !queueOfStates.empty())
+        queueOfStates.pop();
 }
