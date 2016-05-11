@@ -8,7 +8,7 @@ import_types_from "uwv_dynamic_modelTypes.hpp"
 import_types_from "auv_control"
 
 task_context "Task" do
-    abstract
+    #abstract
     needs_configuration
 
     #*************************
@@ -87,7 +87,7 @@ task_context "VelocityEstimator" do
     # Order of polynomial
     property("polynomial_order", "int", 3)
 
-    # Half_witdh. (half_width*2 +1) number of sampels used.
+    # Half_witdh. (half_width*2 +1) number of samples used.
     property("half_width", "int", 16)
 
     # Least_square point used. Choose between [-half_witdh, half_witdh]

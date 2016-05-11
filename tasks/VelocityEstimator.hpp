@@ -15,7 +15,7 @@ namespace uwv_dynamic_model{
      * \brief The task context provides and requires services. It uses an ExecutionEngine to perform its functions.
      * Essential interfaces are operations, data flow ports and properties. These interfaces have been defined using the oroGen specification.
      * In order to modify the interfaces you should (re)use oroGen and rely on the associated workflow.
-     * 
+     *
      * \details
      * The name of a TaskContext is primarily defined via:
      \verbatim
@@ -78,14 +78,14 @@ namespace uwv_dynamic_model{
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
          * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
          */
-        VelocityEstimator(std::string const& name = "uwv_dynamic_model::VelocityEstimator");
+        VelocityEstimator(std::string const& name = "uwv_dynamic_model::VelocityEstimator", DynamicSimulator* simulator = new DynamicSimulator());
 
         /** TaskContext constructor for VelocityEstimator
          * \param name Name of the task. This name needs to be unique to make it identifiable for nameservices.
          * \param engine The RTT Execution engine to be used for this task, which serialises the execution of all commands, programs, state machines and incoming events for a task.
-         * 
+         *
          */
-        VelocityEstimator(std::string const& name, RTT::ExecutionEngine* engine);
+        VelocityEstimator(std::string const& name, RTT::ExecutionEngine* engine, DynamicSimulator* simulator = new DynamicSimulator());
 
         /** Default deconstructor of VelocityEstimator
          */
@@ -152,4 +152,3 @@ namespace uwv_dynamic_model{
 }
 
 #endif
-

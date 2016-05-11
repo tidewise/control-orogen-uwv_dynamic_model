@@ -84,8 +84,8 @@ namespace uwv_dynamic_model {
 	virtual void resetStates(void);
 
     public:
-        Task(std::string const& name = "uwv_dynamic_model::Task");
-        Task(std::string const& name, RTT::ExecutionEngine* engine);
+        Task(std::string const& name = "uwv_dynamic_model::Task", DynamicSimulator* simulator = new DynamicKinematicSimulator());
+        Task(std::string const& name, RTT::ExecutionEngine* engine, DynamicSimulator* simulator = new DynamicKinematicSimulator());
 	~Task();
 
         bool configureHook();

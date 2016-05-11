@@ -4,16 +4,14 @@
 
 using namespace uwv_dynamic_model;
 
-Task::Task(std::string const& name)
-    : TaskBase(name)
+Task::Task(std::string const& name, DynamicSimulator* simulator)
+    : TaskBase(name), simulator(simulator), model_simulation(NULL)
 {
-    model_simulation = NULL;
 }
 
-Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
-    : TaskBase(name, engine)
+Task::Task(std::string const& name, RTT::ExecutionEngine* engine, DynamicSimulator* simulator)
+    : TaskBase(name, engine), simulator(simulator), model_simulation(NULL)
 {
-    model_simulation = NULL;
 }
 
 Task::~Task()
