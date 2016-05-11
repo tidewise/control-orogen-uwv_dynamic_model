@@ -8,7 +8,6 @@ import_types_from "uwv_dynamic_modelTypes.hpp"
 import_types_from "auv_control"
 
 task_context "Task" do
-    #abstract
     needs_configuration
 
     #*************************
