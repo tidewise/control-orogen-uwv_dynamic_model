@@ -8,7 +8,7 @@
  * which case you do not need this file
  */
 #include <base/samples/RigidBodyAcceleration.hpp>
-#include <orocos/auv_control/6dControl.hpp>
+#include <auv_control/6dControl.hpp>
 
 namespace uwv_dynamic_model
 {
