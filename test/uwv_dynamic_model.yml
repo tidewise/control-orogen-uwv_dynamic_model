@@ -1,0 +1,151 @@
+--- name:flat_fish
+# Parameters of the motion model
+model_parameters:
+  model_type: :SIMPLE
+  inertia_matrix:
+    data: [851.05, 0, 0, 0, 0,  0,     0, 1000, 0, 0, 0, 0,     0, 0, 1511.53, 0, 0, 0,     0, 0, 0, 400, 0,  0,     0, 0, 0, 0, 500, 0,     0, 0, 0, 0, 0, 301.60]
+  damping_matrices:
+  - data: [39.57, 0, 0, 0, 0,  0,     0, 40, 0, 0, 0, 0,     0, 0, 31, 0, 0, 0,     0, 0, 0, 30, 0, 0,     0, 0, 0, 0, 35, 0,     0, 0, 0, 0, 0, 26.92]
+  - data: [8.62, 0, 0, 0, 0, 0,     0, 9, 0, 0, 0, 0,     0, 0, 2.24, 0, 0, 0,     0, 0, 0, 300, 0, 0,     0, 0, 0, 0, 350, 0,     0, 0, 0, 0, 0, 279.39]
+  distance_body2centerofbuoyancy:
+    data:
+    - 0.0
+    - 0.0
+    - 0.0
+  distance_body2centerofgravity:
+    data:
+    - 0.0
+    - 0.0
+    - 0.0
+  weight: 300.0
+  buoyancy: 312.0
+# Simulations per cycle.
+sim_per_cycle: 10
+# Name of the source frame
+source_frame: body
+# Name of the target frame
+target_frame: world
+# Velocity uncertainty values. This values are integrated in order to obtain the pose uncertainty
+velocity_uncertainty:
+  data:
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  
+--- name:simple_case
+# Parameters of the motion model
+model_parameters:
+  model_type: :SIMPLE
+  inertia_matrix:
+    data: [1, 0, 0, 0, 0, 0,     0, 1, 0, 0, 0, 0,     0, 0, 1, 0, 0, 0,     0, 0, 0, 1, 0, 0,     0, 0, 0, 0, 1, 0,     0, 0, 0, 0, 0, 1]
+  damping_matrices:
+  - data: [1, 0, 0, 0, 0, 0,     0, 1, 0, 0, 0, 0,     0, 0, 1, 0, 0, 0,     0, 0, 0, 1, 0, 0,     0, 0, 0, 0, 1, 0,     0, 0, 0, 0, 0, 1]
+  - data: [1, 0, 0, 0, 0, 0,     0, 1, 0, 0, 0, 0,     0, 0, 1, 0, 0, 0,     0, 0, 0, 1, 0, 0,     0, 0, 0, 0, 1, 0,     0, 0, 0, 0, 0, 1]
+  distance_body2centerofbuoyancy:
+    data:
+    - 0.0
+    - 0.0
+    - 0.0
+  distance_body2centerofgravity:
+    data:
+    - 0.0
+    - 0.0
+    - 0.0
+  weight: 1.0
+  buoyancy: 1.0
+# Simulations per cycle.
+sim_per_cycle: 10
+# Name of the source frame
+source_frame: body
+# Name of the target frame
+target_frame: world
+# Velocity uncertainty values. This values are integrated in order to obtain the pose uncertainty
+velocity_uncertainty:
+  data:
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+
+--- name:simple_case_no_vertical_damping
+# Parameters of the motion model
+model_parameters:
+  model_type: :SIMPLE
+  inertia_matrix:
+    data: [1, 0, 0, 0, 0, 0,     0, 1, 0, 0, 0, 0,     0, 0, 1, 0, 0, 0,     0, 0, 0, 1, 0, 0,     0, 0, 0, 0, 1, 0,     0, 0, 0, 0, 0, 1]
+  damping_matrices:
+  - data: [1, 0, 0, 0, 0, 0,     0, 1, 0, 0, 0, 0,     0, 0, 0, 0, 0, 0,     0, 0, 0, 1, 0, 0,     0, 0, 0, 0, 1, 0,     0, 0, 0, 0, 0, 1]
+  - data: [1, 0, 0, 0, 0, 0,     0, 1, 0, 0, 0, 0,     0, 0, 0, 0, 0, 0,     0, 0, 0, 1, 0, 0,     0, 0, 0, 0, 1, 0,     0, 0, 0, 0, 0, 1]
+  distance_body2centerofbuoyancy:
+    data:
+    - 0.0
+    - 0.0
+    - 0.0
+  distance_body2centerofgravity:
+    data:
+    - 0.0
+    - 0.0
+    - 0.0
+  weight: 1.0
+  buoyancy: 1.0
+# Simulations per cycle.
+sim_per_cycle: 10
+# Name of the source frame
+source_frame: body
+# Name of the target frame
+target_frame: world
+# Velocity uncertainty values. This values are integrated in order to obtain the pose uncertainty
+velocity_uncertainty:
+  data:
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+
+--- name:angular
+# Parameters of the motion model
+model_parameters:
+  model_type: :COMPLEX
+  inertia_matrix:
+    data: [0, 0, 0, 0, 0, 0,     0, 0, 0, 0, 0, 0,     0, 0, 0, 0, 0, 0,     0, 0, 0, 200, 0,  0,     0, 0, 0, 0, 200, 0,     0, 0, 0, 0, 0, 100]
+  damping_matrices:
+  - data: [1, 0, 0, 0, 0, 0,     0, 1, 0, 0, 0, 0,     0, 0, 1, 0, 0, 0,     0, 0, 0, 1, 0, 0,     0, 0, 0, 0, 1, 0,     0, 0, 0, 0, 0, 1]
+  - data: [1, 0, 0, 0, 0, 0,     0, 1, 0, 0, 0, 0,     0, 0, 1, 0, 0, 0,     0, 0, 0, 1, 0, 0,     0, 0, 0, 0, 1, 0,     0, 0, 0, 0, 0, 1]
+  - data: [1, 0, 0, 0, 0, 0,     0, 1, 0, 0, 0, 0,     0, 0, 1, 0, 0, 0,     0, 0, 0, 1, 0, 0,     0, 0, 0, 0, 1, 0,     0, 0, 0, 0, 0, 1]
+  - data: [1, 0, 0, 0, 0, 0,     0, 1, 0, 0, 0, 0,     0, 0, 1, 0, 0, 0,     0, 0, 0, 1, 0, 0,     0, 0, 0, 0, 1, 0,     0, 0, 0, 0, 0, 1]
+  - data: [1, 0, 0, 0, 0, 0,     0, 1, 0, 0, 0, 0,     0, 0, 1, 0, 0, 0,     0, 0, 0, 1, 0, 0,     0, 0, 0, 0, 1, 0,     0, 0, 0, 0, 0, 1]
+  - data: [1, 0, 0, 0, 0, 0,     0, 1, 0, 0, 0, 0,     0, 0, 1, 0, 0, 0,     0, 0, 0, 1, 0, 0,     0, 0, 0, 0, 1, 0,     0, 0, 0, 0, 0, 1]
+  distance_body2centerofbuoyancy:
+    data:
+    - 0.0
+    - 0.0
+    - 0.0
+  distance_body2centerofgravity:
+    data:
+    - 0.0
+    - 0.0
+    - 0.0
+  weight: 1.0
+  buoyancy: 1.0
+# Simulations per cycle.
+sim_per_cycle: 10
+# Name of the source frame
+source_frame: body
+# Name of the target frame
+target_frame: world
+# Velocity uncertainty values. This values are integrated in order to obtain the pose uncertainty
+velocity_uncertainty:
+  data:
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0

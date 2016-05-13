@@ -1,0 +1,154 @@
+/* Generated from orogen/lib/orogen/templates/tasks/Task.hpp */
+
+#ifndef UWV_DYNAMIC_MODEL_VELOCITYESTIMATOR_TASK_HPP
+#define UWV_DYNAMIC_MODEL_VELOCITYESTIMATOR_TASK_HPP
+
+#include "uwv_dynamic_model/VelocityEstimatorBase.hpp"
+#include <queue>
+#include <deque>
+#include <vector>
+#include "numeric/SavitzkyGolayFilter.hpp"
+
+namespace uwv_dynamic_model{
+
+    /*! \class VelocityEstimator
+     * \brief The task context provides and requires services. It uses an ExecutionEngine to perform its functions.
+     * Essential interfaces are operations, data flow ports and properties. These interfaces have been defined using the oroGen specification.
+     * In order to modify the interfaces you should (re)use oroGen and rely on the associated workflow.
+     *
+     * \details
+     * The name of a TaskContext is primarily defined via:
+     \verbatim
+     deployment 'deployment_name'
+         task('custom_task_name','uwv_dynamic_model::VelocityEstimator')
+     end
+     \endverbatim
+     *  It can be dynamically adapted when the deployment is called with a prefix argument.
+     */
+    class VelocityEstimator : public VelocityEstimatorBase
+    {
+	friend class VelocityEstimatorBase;
+    protected:
+
+
+        // Secondary model_simulation, use for replaying old effort data and time allying dvl data
+        ModelSimulation* model_simulation2;
+
+        // Deriving depth data for estimating vertical velocity
+        // Savitzky-Golay coefficients.
+        std::vector<double> filter_coeff;
+        // Depth data samples
+        std::deque<base::samples::RigidBodyState> queueOfDepthData;
+
+        std::queue<std::pair<base::LinearAngular6DCommand, base::samples::RigidBodyState> > queueOfStates;
+
+        /**
+         * Enqueue pose&effort states
+         * @param pose state
+         * @param effort control_input
+         */
+        void handleStates(const base::samples::RigidBodyState &state, const base::LinearAngular6DCommand &control_input);
+
+        /**
+         * Update X-Y dvl velocity in pose.
+         * @param pose to be updated
+         * @param dvl_sample new velocity data
+         * @return updated pose
+         */
+        base::samples::RigidBodyState updatePoseWithXYVelocity(const base::samples::RigidBodyState &pose, const base::samples::RigidBodyState &dvl_sample);
+
+        /**
+         * Estimate Z velocity, based on depth derivative.
+         * @param depth_sample
+         * @return estiamted z velocity
+         */
+         double verticalVelocityEstimation(const base::samples::RigidBodyState &depth_sample);
+
+        /** Replay model simulation.
+         *
+         *  Replay simulation from dvl_sample.time until last control_input data.
+         *  The aim is to update the X-Y linear velocity.
+         *  @param dvl_sample. Use X-Y velocities
+         *  @return updated state
+         */
+         base::samples::RigidBodyState replayModel(const base::samples::RigidBodyState &dvl_sample);
+
+    public:
+        /** TaskContext constructor for VelocityEstimator
+         * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
+         * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
+         */
+        VelocityEstimator(std::string const& name = "uwv_dynamic_model::VelocityEstimator", DynamicSimulator* simulator = new DynamicSimulator());
+
+        /** TaskContext constructor for VelocityEstimator
+         * \param name Name of the task. This name needs to be unique to make it identifiable for nameservices.
+         * \param engine The RTT Execution engine to be used for this task, which serialises the execution of all commands, programs, state machines and incoming events for a task.
+         *
+         */
+        VelocityEstimator(std::string const& name, RTT::ExecutionEngine* engine, DynamicSimulator* simulator = new DynamicSimulator());
+
+        /** Default deconstructor of VelocityEstimator
+         */
+	~VelocityEstimator();
+
+        /** This hook is called by Orocos when the state machine transitions
+         * from PreOperational to Stopped. If it returns false, then the
+         * component will stay in PreOperational. Otherwise, it goes into
+         * Stopped.
+         *
+         * It is meaningful only if the #needs_configuration has been specified
+         * in the task context definition with (for example):
+         \verbatim
+         task_context "TaskName" do
+           needs_configuration
+           ...
+         end
+         \endverbatim
+         */
+        bool configureHook();
+
+        /** This hook is called by Orocos when the state machine transitions
+         * from Stopped to Running. If it returns false, then the component will
+         * stay in Stopped. Otherwise, it goes into Running and updateHook()
+         * will be called.
+         */
+        bool startHook();
+
+        /** This hook is called by Orocos when the component is in the Running
+         * state, at each activity step. Here, the activity gives the "ticks"
+         * when the hook should be called.
+         *
+         * The error(), exception() and fatal() calls, when called in this hook,
+         * allow to get into the associated RunTimeError, Exception and
+         * FatalError states.
+         *
+         * In the first case, updateHook() is still called, and recover() allows
+         * you to go back into the Running state.  In the second case, the
+         * errorHook() will be called instead of updateHook(). In Exception, the
+         * component is stopped and recover() needs to be called before starting
+         * it again. Finally, FatalError cannot be recovered.
+         */
+        void updateHook();
+
+        /** This hook is called by Orocos when the component is in the
+         * RunTimeError state, at each activity step. See the discussion in
+         * updateHook() about triggering options.
+         *
+         * Call recover() to go back in the Runtime state.
+         */
+        void errorHook();
+
+        /** This hook is called by Orocos when the state machine transitions
+         * from Running to Stopped after stop() has been called.
+         */
+        void stopHook();
+
+        /** This hook is called by Orocos when the state machine transitions
+         * from Stopped to PreOperational, requiring the call to configureHook()
+         * before calling start() again.
+         */
+        void cleanupHook();
+    };
+}
+
+#endif

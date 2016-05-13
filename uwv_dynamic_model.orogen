@@ -1,0 +1,111 @@
+name "uwv_dynamic_model"
+
+using_library "uwv_dynamic_model"
+using_library "numeric"
+import_types_from "base"
+import_types_from "uwv_dynamic_model/DataTypes.hpp"
+import_types_from "uwv_dynamic_modelTypes.hpp"
+import_types_from "auv_control"
+
+task_context "Task" do
+    needs_configuration
+
+    #*************************
+    #***    PROPERTIES     ***
+    #*************************
+
+    # Parameters of the motion model
+    property("model_parameters", "uwv_dynamic_model/UWVParameters")
+
+    # Simulations per cycle.
+    property("sim_per_cycle", "int", 10)
+
+    # Name of the source frame
+    property("source_frame", "std/string", "body")
+
+    # Name of the target frame
+    property("target_frame", "std/string", "world")
+
+    # Velocity uncertainty values. This values are integrated in order to obtain the pose uncertainty
+    property("velocity_uncertainty", "base/Vector6d")
+
+
+    #*************************
+    #***     I/O PORTS     ***
+    #*************************
+
+    # Thrusters' commands
+    input_port("cmd_in", "/base/LinearAngular6DCommand")
+
+    # The new states after the thrusters' commands are applied
+    output_port("pose_samples", "/base/samples/RigidBodyState")
+
+    # Effort and acceleration values
+    output_port("secondary_states", "uwv_dynamic_model/SecondaryStates")
+
+
+    #*************************
+    #***      OTHERS       ***
+    #*************************
+
+    operation("resetStates")
+
+    runtime_states :SIMULATING
+    exception_states :EFFORT_UNSET, :INPUT_TIMESTAMP_NOT_SET, :COMMAND_WITH_REPEATED_TIMESTAMP
+
+    periodic 0.01
+end
+
+
+# The aims of VelocityEstimator is to be a simple Model Based Velocity Estimator.
+#
+# It integrates sensors data direct to the model's states,
+# without using any filter, like Kalman-Filter.
+#
+# It is based on the assuption that orientation, angular velocity
+# and depth are provided by sensors at a high rate and precision.
+#
+# For acoustic sensor, i.e. dvl, which latency time is significant,
+# the componente replay the model with storage states and commands,
+# correcting model's uncertainty with measured data.
+#
+# For the particular case of vertical velocity, depth sample is
+# derived (using a Savitzky Golay filter), replacing data from dvl
+# for this degree of freedom.
+#
+task_context "VelocityEstimator" do
+    subclasses "Task"
+
+    #*************************
+    #***    PROPERTIES     ***
+    #*************************
+
+    # Savitzky Golay filter properties
+    # Used in deriving depth data for getting vertical velocity
+    #
+    # Order of polynomial
+    property("polynomial_order", "int", 3)
+
+    # Half_witdh. (half_width*2 +1) number of samples used.
+    property("half_width", "int", 16)
+
+    # Least_square point used. Choose between [-half_witdh, half_witdh]
+    property("least_square_point", "int", 16)
+
+    #*************************
+    #***     I/O PORTS     ***
+    #*************************
+
+    # Dvl linear velocities samples
+    input_port("dvl_samples", "/base/samples/RigidBodyState")
+
+    # IMU orientation samples
+    input_port("imu_orientation", "/base/samples/RigidBodyState")
+
+    # Angular velocities samples
+    input_port("fog_samples","/base/samples/IMUSensors")
+
+    # Depth in water, relative to the surface. Derivated for vertical velocity estimation.
+    input_port("depth_samples", "/base/samples/RigidBodyState")
+
+end
