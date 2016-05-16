@@ -55,6 +55,14 @@ void Task::updateHook()
     if(!checkInput(control_input))
         return;
 
+    for(int i = 0; i < 3; i++)
+    {
+        if(base::isNaN(control_input.linear[i]))
+            control_input.linear[i] = 0;
+        if(base::isNaN(control_input.angular[i]))
+            control_input.angular[i] = 0;
+    }
+
     // Getting new samplingTime. Useful when there is no periodicity in input
     double sampling_time = (control_input.time - last_control_input).toSeconds();
     if (sampling_time > 0 && last_control_input != base::Time::fromSeconds(0))
@@ -82,12 +90,6 @@ void Task::updateHook()
 
 bool Task::checkInput(const base::LinearAngular6DCommand &control_input)
 {
-    if(control_input.linear.hasNaN() || control_input.angular.hasNaN())
-    {
-        exception(EFFORT_UNSET);
-        return false;
-    }
-
     if(control_input.time == base::Time::fromSeconds(0))
     {
         exception(INPUT_TIMESTAMP_NOT_SET);
