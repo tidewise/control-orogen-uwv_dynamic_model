@@ -51,7 +51,7 @@ task_context "Task" do
     operation("resetStates")
 
     runtime_states :SIMULATING
-    exception_states :EFFORT_UNSET, :INPUT_TIMESTAMP_NOT_SET, :COMMAND_WITH_REPEATED_TIMESTAMP
+    exception_states :INPUT_TIMESTAMP_NOT_SET, :COMMAND_WITH_REPEATED_TIMESTAMP
 
     periodic 0.01
 end
