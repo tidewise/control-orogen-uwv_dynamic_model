@@ -108,4 +108,17 @@ task_context "VelocityEstimator" do
     # Pressure sensor's depth samples. Derivated for vertical velocity estimation.
     input_port("depth_samples", "/base/samples/RigidBodyState")
 
+    #*************************
+    #***  TRANSFORMATIONS  ***
+    #*************************
+
+    transformer do
+        transformation("imu", "body")
+        transformation("pressure_sensor", "body")
+        transformation("dvl", "body")
+        max_latency(0.05)
+    end
+
+    runtime_states :MISSING_TRANSFORMATION
+
 end
