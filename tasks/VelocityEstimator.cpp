@@ -167,6 +167,23 @@ void VelocityEstimator::updateHook()
         model_simulation->setPose(fromRBS(temp_pose));
     }
 }
+
+bool VelocityEstimator::getTransformation(const transformer::Transformation &transformer, Eigen::Affine3d &transformationMatrix)
+{
+    if (!transformer.get(base::Time::now(), transformationMatrix))
+    {
+        if(state() != MISSING_TRANSFORMATION)
+            state(MISSING_TRANSFORMATION);
+        return false;
+    }
+    else
+    {
+        if(state() != RUNNING)
+            state(RUNNING);
+    }
+
+    return true;
+}
 void VelocityEstimator::errorHook()
 {
     VelocityEstimatorBase::errorHook();
