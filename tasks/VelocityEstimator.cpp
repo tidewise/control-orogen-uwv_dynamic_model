@@ -132,25 +132,25 @@ void VelocityEstimator::updateHook()
     }
 
     // Updating orientation
-    // Direct from sensor. Assuming high rate sampling time, timestamp is not take in account.
-    base::samples::RigidBodyState imu_sample;
-    if (_imu_orientation.read(imu_sample) == RTT::NewData)
+    // From orientation estimator. Assuming high rate sampling time, timestamp is not take in account.
+    base::samples::RigidBodyState orientation_sample;
+    if (_orientation_samples.read(orientation_sample) == RTT::NewData)
     {
-        if(!imu_sample.hasValidOrientation())
+        if(!orientation_sample.hasValidOrientation())
             return;
-        model_simulation->setOrientation(imu_sample.orientation);
+        model_simulation->setOrientation(orientation_sample.orientation);
     }
 
     // Angular velocity
-    // Direct from sensor. Assuming high rate sampling time, timestamp is not take in account.
-    base::samples::IMUSensors fog_sample;
-    if (_fog_samples.read(fog_sample) == RTT::NewData)
+    // Direct from imu. Assuming high rate sampling time, timestamp is not take in account.
+    base::samples::IMUSensors imu_sample;
+    if (_imu_samples.read(imu_sample) == RTT::NewData)
     {
-        if(fog_sample.gyro.hasNaN())
+        if(imu_sample.gyro.hasNaN())
             return;
         // TODO need validation
         base::samples::RigidBodyState temp_pose = toRBS(model_simulation->getPose());
-        temp_pose.angular_velocity = fog_sample.gyro;
+        temp_pose.angular_velocity = imu_sample.gyro;
         model_simulation->setPose(fromRBS(temp_pose));
     }
 
