@@ -113,10 +113,10 @@ task_context "VelocityEstimator" do
     #*************************
 
     transformer do
-        transformation("imu", "body")
-        transformation("pressure_sensor", "body")
-        transformation("dvl", "body")
-        max_latency(0.05)
+        transform "imu", "body"
+        transform "pressure_sensor", "body"
+        transform "dvl", "body"
+        max_latency 0.05
     end
 
     runtime_states :MISSING_TRANSFORMATION
