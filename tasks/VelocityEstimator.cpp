@@ -132,12 +132,10 @@ void VelocityEstimator::updateHook()
 
         // Corrects the dvl's measured velocities to subtract the effects of the
         // vehicle's angular velocity on the linear velocity measurement
-        current_angular_velocity = toRBS(model_simulation->getPose()).angular_velocity;
-        if(!base::isNaN(current_angular_velocity) && !current_angular_velocity.isZero())
-        {
-            base::Vector3d euler_angle_velocity = base::getEuler(base::Orientation(Eigen::AngleAxisd(current_angular_velocity.norm(), current_angular_velocity.normalized())));
-            dvl_velocity -= Eigen::Vector3d(euler_angle_velocity.z(), euler_angle_velocity.y(), euler_angle_velocity.x()).cross(dvl2body.translation());
-        }
+        // The model's angular velocity contains the IMU's angular velocity
+        current_angular_velocity = model_simulation->getPose().angular_velocity;
+        if(base::isnotnan(current_angular_velocity))
+            dvl_velocity -= current_angular_velocity.cross(dvl2body.translation());
 
         // Updates dvl's measurement for the vehicle's frame
         dvl_sample.velocity = dvl_velocity;
@@ -179,7 +177,7 @@ void VelocityEstimator::updateHook()
             return;
 
         base::samples::RigidBodyState temp_pose = toRBS(model_simulation->getPose());
-        temp_pose.angular_velocity = eulerToAxisAngle(imu2body.rotation() * imu_sample.gyro);
+        temp_pose.angular_velocity = imu2body.rotation() * imu_sample.gyro;
         model_simulation->setPose(fromRBS(temp_pose));
     }
 
