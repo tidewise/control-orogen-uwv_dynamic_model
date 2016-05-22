@@ -148,14 +148,6 @@ SecondaryStates Task::getSecondaryStates(const base::LinearAngular6DCommand &con
     return secondary_states;
 }
 
-base::Vector3d Task::eulerToAxisAngle(const base::Vector3d &states)
-{
-    Eigen::AngleAxisd axisAngle = Eigen::AngleAxisd(Eigen::AngleAxisd(states(2), Eigen::Vector3d::UnitZ()) *
-                                  Eigen::AngleAxisd(states(1), Eigen::Vector3d::UnitY()) *
-                                  Eigen::AngleAxisd(states(0), Eigen::Vector3d::UnitX()));
-    return axisAngle.angle() * axisAngle.axis();
-}
-
 void Task::setUncertainty(base::samples::RigidBodyState &states)
 {
     base::Vector6d velocityUncertainty = _velocity_uncertainty.get();
