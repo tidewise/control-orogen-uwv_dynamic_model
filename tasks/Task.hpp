@@ -58,10 +58,6 @@ namespace uwv_dynamic_model {
 	SecondaryStates getSecondaryStates(const base::LinearAngular6DCommand &control_input, const AccelerationState &acceleration);
 
 	/**
-	 * Transforms a set of coordinates from euler to axis-angle representation
-	 */
-	base::Vector3d eulerToAxisAngle(const base::Vector3d &states);
-	/**
 	 * Sets the uncertainty value for pose and velocity
 	 */
 	void setUncertainty(base::samples::RigidBodyState &states);
