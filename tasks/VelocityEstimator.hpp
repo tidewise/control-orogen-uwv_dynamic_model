@@ -79,14 +79,14 @@ namespace uwv_dynamic_model{
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
          * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
          */
-        VelocityEstimator(std::string const& name = "uwv_dynamic_model::VelocityEstimator", DynamicSimulator* simulator = new DynamicSimulator());
+        VelocityEstimator(std::string const& name = "uwv_dynamic_model::VelocityEstimator", ModelSimulator simulator = DYNAMIC);
 
         /** TaskContext constructor for VelocityEstimator
          * \param name Name of the task. This name needs to be unique to make it identifiable for nameservices.
          * \param engine The RTT Execution engine to be used for this task, which serialises the execution of all commands, programs, state machines and incoming events for a task.
          *
          */
-        VelocityEstimator(std::string const& name, RTT::ExecutionEngine* engine, DynamicSimulator* simulator = new DynamicSimulator());
+        VelocityEstimator(std::string const& name, RTT::ExecutionEngine* engine, ModelSimulator simulator = DYNAMIC);
 
         /** Default deconstructor of VelocityEstimator
          */
