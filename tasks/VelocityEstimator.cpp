@@ -118,11 +118,32 @@ void VelocityEstimator::updateHook()
     base::samples::RigidBodyState dvl_sample;
     if (_dvl_samples.read(dvl_sample) == RTT::NewData)
     {
+        Eigen::Affine3d dvl2body;
+        base::Vector3d dvl_velocity;
+        base::Vector3d current_angular_velocity;
+
         if(!dvl_sample.hasValidVelocity())
             return;
+
+        // Sets the pose transformation between the dvl and the robot frame
+        if (!getTransformation(_dvl2body, dvl2body))
+            return;
+        dvl_velocity = dvl2body.rotation() * dvl_sample.velocity;
+
+        // Corrects the dvl's measured velocities to subtract the effects of the
+        // vehicle's angular velocity on the linear velocity measurement
+        // The model's angular velocity contains the IMU's angular velocity
+        current_angular_velocity = model_simulation->getPose().angular_velocity;
+        if(base::isnotnan(current_angular_velocity))
+            dvl_velocity -= current_angular_velocity.cross(dvl2body.translation());
+
+        // Updates dvl's measurement for the vehicle's frame
+        dvl_sample.velocity = dvl_velocity;
+
         // Pop out old data
         while(!queueOfStates.empty() && dvl_sample.time > queueOfStates.front().first.time)
             queueOfStates.pop();
+
         // In case of empty queue, dvl_sample ahead of model_simulation
         if(!queueOfStates.empty())
             dvl_sample = replayModel(dvl_sample);
@@ -132,25 +153,31 @@ void VelocityEstimator::updateHook()
     }
 
     // Updating orientation
-    // Direct from sensor. Assuming high rate sampling time, timestamp is not take in account.
-    base::samples::RigidBodyState imu_sample;
-    if (_imu_orientation.read(imu_sample) == RTT::NewData)
+    // From orientation estimator. Assuming high rate sampling time, timestamp is not take in account.
+    base::samples::RigidBodyState orientation_sample;
+    if (_orientation_samples.read(orientation_sample) == RTT::NewData)
     {
-        if(!imu_sample.hasValidOrientation())
+        if(!orientation_sample.hasValidOrientation())
             return;
-        model_simulation->setOrientation(imu_sample.orientation);
+        model_simulation->setOrientation(orientation_sample.orientation);
     }
 
     // Angular velocity
-    // Direct from sensor. Assuming high rate sampling time, timestamp is not take in account.
-    base::samples::IMUSensors fog_sample;
-    if (_fog_samples.read(fog_sample) == RTT::NewData)
+    // Direct from imu. Assuming high rate sampling time, timestamp is not take in account.
+    base::samples::IMUSensors imu_sample;
+    if (_imu_samples.read(imu_sample) == RTT::NewData)
     {
-        if(fog_sample.gyro.hasNaN())
+        // receive sensor to body transformation
+        Eigen::Affine3d imu2body;
+
+        if(imu_sample.gyro.hasNaN())
             return;
-        // TODO need validation
+
+        if (!getTransformation(_imu2body, imu2body))
+            return;
+
         base::samples::RigidBodyState temp_pose = toRBS(model_simulation->getPose());
-        temp_pose.angular_velocity = fog_sample.gyro;
+        temp_pose.angular_velocity = imu2body.rotation() * imu_sample.gyro;
         model_simulation->setPose(fromRBS(temp_pose));
     }
 
@@ -159,13 +186,40 @@ void VelocityEstimator::updateHook()
     base::samples::RigidBodyState depth_sample;
     if (_depth_samples.read(depth_sample) == RTT::NewData)
     {
+        Eigen::Affine3d pressure_sensor2body;
+
         if(!depth_sample.hasValidPosition(2))
             return;
+
+        // Sets the pose transformation between the pressure sensor and the robot frame
+        if (!getTransformation(_pressure_sensor2body, pressure_sensor2body))
+            return;
+
+        depth_sample.orientation = base::Orientation::Identity();
+        depth_sample.setTransform(depth_sample.getTransform() * pressure_sensor2body.inverse());
+
         base::samples::RigidBodyState temp_pose = toRBS(model_simulation->getPose());
         temp_pose.velocity[2] = verticalVelocityEstimation(depth_sample);
         temp_pose.position[2] = depth_sample.position[2];
         model_simulation->setPose(fromRBS(temp_pose));
     }
+}
+
+bool VelocityEstimator::getTransformation(const transformer::Transformation &transformer, Eigen::Affine3d &transformationMatrix)
+{
+    if (!transformer.get(base::Time::now(), transformationMatrix))
+    {
+        if(state() != MISSING_TRANSFORMATION)
+            state(MISSING_TRANSFORMATION);
+        return false;
+    }
+    else
+    {
+        if(state() != RUNNING)
+            state(RUNNING);
+    }
+
+    return true;
 }
 void VelocityEstimator::errorHook()
 {

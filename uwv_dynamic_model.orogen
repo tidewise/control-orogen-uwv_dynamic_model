@@ -96,16 +96,29 @@ task_context "VelocityEstimator" do
     #***     I/O PORTS     ***
     #*************************
 
-    # Dvl linear velocities samples
+    # DVL's linear velocities samples
     input_port("dvl_samples", "/base/samples/RigidBodyState")
 
-    # IMU orientation samples
-    input_port("imu_orientation", "/base/samples/RigidBodyState")
+    # Orientation samples
+    input_port("orientation_samples", "/base/samples/RigidBodyState")
 
-    # Angular velocities samples
-    input_port("fog_samples","/base/samples/IMUSensors")
+    # IMU's angular velocities samples
+    input_port("imu_samples","/base/samples/IMUSensors")
 
-    # Depth in water, relative to the surface. Derivated for vertical velocity estimation.
+    # Pressure sensor's depth samples. Derivated for vertical velocity estimation.
     input_port("depth_samples", "/base/samples/RigidBodyState")
+
+    #*************************
+    #***  TRANSFORMATIONS  ***
+    #*************************
+
+    transformer do
+        transform "imu", "body"
+        transform "pressure_sensor", "body"
+        transform "dvl", "body"
+        max_latency 0.05
+    end
+
+    runtime_states :MISSING_TRANSFORMATION
 
 end

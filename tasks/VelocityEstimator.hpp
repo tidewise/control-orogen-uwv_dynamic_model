@@ -41,6 +41,7 @@ namespace uwv_dynamic_model{
         std::deque<base::samples::RigidBodyState> queueOfDepthData;
 
         std::queue<std::pair<base::LinearAngular6DCommand, base::samples::RigidBodyState> > queueOfStates;
+        bool getTransformation(const transformer::Transformation &transformer, Eigen::Affine3d &transformationMatrix);
 
         /**
          * Enqueue pose&effort states
