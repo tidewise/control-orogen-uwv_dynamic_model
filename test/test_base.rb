@@ -1,6 +1,7 @@
 require 'minitest/spec'
 require 'orocos/test/component'
 require 'minitest/autorun'
+require "transformer/runtime"
 
 describe 'uwv_dynamic_model::VelocityEstimator configuration' do
     include Orocos::Test::Component
@@ -9,8 +10,8 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
     writer 'velocity_estimator', 'cmd_in', attr_name: 'cmd_in'
     writer 'velocity_estimator', 'dvl_samples', attr_name: 'dvl_samples'
     writer 'velocity_estimator', 'depth_samples', attr_name: 'depth_samples'
-    writer 'velocity_estimator', 'imu_orientation', attr_name: 'imu_orientation'
-    writer 'velocity_estimator', 'fog_samples', attr_name: 'fog_samples'
+    writer 'velocity_estimator', 'orientation_samples', attr_name: 'imu_orientation'
+    writer 'velocity_estimator', 'imu_samples', attr_name: 'fog_samples'
 
     def zero_command
         sample = velocity_estimator.cmd_in.new_sample
@@ -48,12 +49,12 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
         cmd_in.write sample
 
         data = assert_has_one_new_sample pose_samples, 1
-        assert (data.velocity[0] + 0).abs < 0.001
-        assert (data.velocity[1] + 0).abs < 0.001
-        assert (data.velocity[2] + 0).abs < 0.001
-        assert (data.angular_velocity[0] + 0).abs < 0.001
-        assert (data.angular_velocity[1] + 0).abs < 0.001
-        assert (data.angular_velocity[2] + 0).abs < 0.001
+        assert_in_epsilon data.velocity[0], 0, 0.02
+        assert_in_epsilon data.velocity[1], 0, 0.02
+        assert_in_epsilon data.velocity[2], 0, 0.02
+        assert_in_epsilon data.angular_velocity[0], 0, 0.02
+        assert_in_epsilon data.angular_velocity[1], 0, 0.02
+        assert_in_epsilon data.angular_velocity[2], 0, 0.02
     end
 
     it 'add constant input in model' do
@@ -70,12 +71,12 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
         end
 
         data = assert_has_one_new_sample pose_samples, 1
-        assert (data.velocity[0] - 1).abs < 0.001
-        assert (data.velocity[1] + 0).abs < 0.001
-        assert (data.velocity[2] + 0).abs < 0.001
-        assert (data.angular_velocity[0] + 0).abs < 0.001
-        assert (data.angular_velocity[1] + 0).abs < 0.001
-        assert (data.angular_velocity[2] + 0).abs < 0.001
+        assert_in_epsilon data.velocity[0], 1, 0.02
+        assert_in_epsilon data.velocity[1], 0, 0.02
+        assert_in_epsilon data.velocity[2], 0, 0.02
+        assert_in_epsilon data.angular_velocity[0], 0, 0.02
+        assert_in_epsilon data.angular_velocity[1], 0, 0.02
+        assert_in_epsilon data.angular_velocity[2], 0, 0.02
     end
 
     it 'input with repeated timestamp' do
@@ -114,17 +115,18 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
         end
 
         data = assert_has_one_new_sample pose_samples, 1
-        assert (data.velocity[0] - 1).abs < 0.1
-        assert (data.velocity[1] + 0).abs < 0.001
-        assert (data.velocity[2] + 0).abs < 0.001
-        assert (data.angular_velocity[0] + 0).abs < 0.001
-        assert (data.angular_velocity[1] + 0).abs < 0.001
-        assert (data.angular_velocity[2] + 0).abs < 0.001
+        assert_in_epsilon data.velocity[0], 1, 0.02
+        assert_in_epsilon data.velocity[1], 0, 0.02
+        assert_in_epsilon data.velocity[2], 0, 0.02
+        assert_in_epsilon data.angular_velocity[0], 0, 0.02
+        assert_in_epsilon data.angular_velocity[1], 0, 0.02
+        assert_in_epsilon data.angular_velocity[2], 0, 0.02
     end
 
     it 'add depth data in velocity estimator. constant vertical velocity' do
+        Orocos.transformer.load_conf("static_transforms.rb")
+        Orocos.transformer.setup(velocity_estimator)
         velocity_estimator.apply_conf_file("uwv_dynamic_model.yml",['simple_case_no_vertical_damping'])
-
         velocity_estimator.configure
         velocity_estimator.start
 
@@ -148,10 +150,12 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
         end
 
         data = assert_has_one_new_sample pose_samples, 1
-        assert (data.velocity[2] - z_velocity).abs < 0.001
+        assert_in_epsilon data.velocity[2],  z_velocity, 0.02
     end
 
     it 'add depth data in velocity estimator. constant vertical velocity with influency of vertical damping' do
+        Orocos.transformer.load_conf("static_transforms.rb")
+        Orocos.transformer.setup(velocity_estimator)
         velocity_estimator.apply_conf_file("uwv_dynamic_model.yml",['simple_case'])
 
         velocity_estimator.configure
@@ -177,11 +181,12 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
         end
 
         data = assert_has_one_new_sample pose_samples, 1
-        assert (data.velocity[2] - z_velocity).abs > 0.001
-        assert (data.velocity[2] - z_velocity).abs < 0.01
+        assert_in_epsilon data.velocity[2], z_velocity, 0.02
     end
 
     it 'add depth data in velocity estimator. varing vertical velocity' do
+        Orocos.transformer.load_conf("static_transforms.rb")
+        Orocos.transformer.setup(velocity_estimator)
         velocity_estimator.apply_conf_file("uwv_dynamic_model.yml",['simple_case_no_vertical_damping'])
 
         velocity_estimator.configure
@@ -209,10 +214,12 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
         end
 
         data = assert_has_one_new_sample pose_samples, 1
-        assert (data.velocity[2] - z_velocity).abs < 0.001
+        assert_in_epsilon data.velocity[2], z_velocity, 0.02
     end
 
     it 'add depth data in velocity estimator. filtering high frequency noise' do
+        Orocos.transformer.load_conf("static_transforms.rb")
+        Orocos.transformer.setup(velocity_estimator)
         velocity_estimator.apply_conf_file("uwv_dynamic_model.yml",['simple_case_no_vertical_damping'])
 
         velocity_estimator.configure
@@ -243,7 +250,7 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
         end
 
         data = assert_has_one_new_sample pose_samples, 1
-        assert (data.velocity[2] - z_velocity).abs < 0.001
+        assert_in_epsilon data.velocity[2], z_velocity, 0.02
     end
 
 end

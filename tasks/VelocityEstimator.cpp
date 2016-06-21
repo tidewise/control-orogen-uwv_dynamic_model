@@ -4,13 +4,13 @@
 
 using namespace uwv_dynamic_model;
 
-VelocityEstimator::VelocityEstimator(std::string const& name, DynamicSimulator* simulator)
+VelocityEstimator::VelocityEstimator(std::string const& name, ModelSimulator simulator)
     : VelocityEstimatorBase(name), model_simulation2(NULL)
 {
     setSimulator(simulator);
 }
 
-VelocityEstimator::VelocityEstimator(std::string const& name, RTT::ExecutionEngine* engine,DynamicSimulator* simulator)
+VelocityEstimator::VelocityEstimator(std::string const& name, RTT::ExecutionEngine* engine, ModelSimulator simulator)
     : VelocityEstimatorBase(name, engine), model_simulation2(NULL)
 {
     setSimulator(simulator);

@@ -4,12 +4,12 @@
 
 using namespace uwv_dynamic_model;
 
-Task::Task(std::string const& name, DynamicSimulator* simulator)
+Task::Task(std::string const& name, ModelSimulator simulator)
     : TaskBase(name), simulator(simulator), model_simulation(NULL)
 {
 }
 
-Task::Task(std::string const& name, RTT::ExecutionEngine* engine, DynamicSimulator* simulator)
+Task::Task(std::string const& name, RTT::ExecutionEngine* engine, ModelSimulator simulator)
     : TaskBase(name, engine), simulator(simulator), model_simulation(NULL)
 {
 }
@@ -174,7 +174,7 @@ void Task::resetStates(void)
     model_simulation->resetStates();
 }
 
-void Task::setSimulator(DynamicSimulator* simulator)
+void Task::setSimulator(ModelSimulator simulator)
 {
    this->simulator = simulator;
 }
@@ -194,5 +194,4 @@ void Task::cleanupHook()
 {
     TaskBase::cleanupHook();
     delete model_simulation;
-    delete simulator;
 }

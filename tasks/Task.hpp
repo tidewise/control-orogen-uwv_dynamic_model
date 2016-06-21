@@ -29,7 +29,7 @@ namespace uwv_dynamic_model {
     protected:
 
 	ModelSimulation* model_simulation;
-	DynamicSimulator* simulator;
+	ModelSimulator simulator;
 	base::Time last_control_input;
 
     /**
@@ -65,7 +65,7 @@ namespace uwv_dynamic_model {
     /**
     * Sets the simulator used.
     */
-	void setSimulator(DynamicSimulator* simulator);
+	void setSimulator(ModelSimulator simulator);
 
     /**
      * Do something with data in derived class
@@ -80,8 +80,8 @@ namespace uwv_dynamic_model {
 	virtual void resetStates(void);
 
     public:
-        Task(std::string const& name = "uwv_dynamic_model::Task", DynamicSimulator* simulator = new DynamicKinematicSimulator());
-        Task(std::string const& name, RTT::ExecutionEngine* engine, DynamicSimulator* simulator = new DynamicKinematicSimulator());
+        Task(std::string const& name = "uwv_dynamic_model::Task", ModelSimulator simulator = DYNAMIC_KINEMATIC);
+        Task(std::string const& name, RTT::ExecutionEngine* engine, ModelSimulator simulator = DYNAMIC_KINEMATIC);
 	~Task();
 
         bool configureHook();
