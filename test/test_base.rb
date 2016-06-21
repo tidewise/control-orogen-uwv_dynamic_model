@@ -49,12 +49,12 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
         cmd_in.write sample
 
         data = assert_has_one_new_sample pose_samples, 1
-        assert (data.velocity[0] + 0).abs < 0.001
-        assert (data.velocity[1] + 0).abs < 0.001
-        assert (data.velocity[2] + 0).abs < 0.001
-        assert (data.angular_velocity[0] + 0).abs < 0.001
-        assert (data.angular_velocity[1] + 0).abs < 0.001
-        assert (data.angular_velocity[2] + 0).abs < 0.001
+        assert_in_epsilon data.velocity[0], 0, 0.02
+        assert_in_epsilon data.velocity[1], 0, 0.02
+        assert_in_epsilon data.velocity[2], 0, 0.02
+        assert_in_epsilon data.angular_velocity[0], 0, 0.02
+        assert_in_epsilon data.angular_velocity[1], 0, 0.02
+        assert_in_epsilon data.angular_velocity[2], 0, 0.02
     end
 
     it 'add constant input in model' do
@@ -71,12 +71,12 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
         end
 
         data = assert_has_one_new_sample pose_samples, 1
-        assert (data.velocity[0] - 1).abs < 0.001
-        assert (data.velocity[1] + 0).abs < 0.001
-        assert (data.velocity[2] + 0).abs < 0.001
-        assert (data.angular_velocity[0] + 0).abs < 0.001
-        assert (data.angular_velocity[1] + 0).abs < 0.001
-        assert (data.angular_velocity[2] + 0).abs < 0.001
+        assert_in_epsilon data.velocity[0], 1, 0.02
+        assert_in_epsilon data.velocity[1], 0, 0.02
+        assert_in_epsilon data.velocity[2], 0, 0.02
+        assert_in_epsilon data.angular_velocity[0], 0, 0.02
+        assert_in_epsilon data.angular_velocity[1], 0, 0.02
+        assert_in_epsilon data.angular_velocity[2], 0, 0.02
     end
 
     it 'input with repeated timestamp' do
@@ -115,19 +115,18 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
         end
 
         data = assert_has_one_new_sample pose_samples, 1
-        assert (data.velocity[0] - 1).abs < 0.1
-        assert (data.velocity[1] + 0).abs < 0.001
-        assert (data.velocity[2] + 0).abs < 0.001
-        assert (data.angular_velocity[0] + 0).abs < 0.001
-        assert (data.angular_velocity[1] + 0).abs < 0.001
-        assert (data.angular_velocity[2] + 0).abs < 0.001
+        assert_in_epsilon data.velocity[0], 1, 0.02
+        assert_in_epsilon data.velocity[1], 0, 0.02
+        assert_in_epsilon data.velocity[2], 0, 0.02
+        assert_in_epsilon data.angular_velocity[0], 0, 0.02
+        assert_in_epsilon data.angular_velocity[1], 0, 0.02
+        assert_in_epsilon data.angular_velocity[2], 0, 0.02
     end
 
     it 'add depth data in velocity estimator. constant vertical velocity' do
         Orocos.transformer.load_conf("static_transforms.rb")
         Orocos.transformer.setup(velocity_estimator)
         velocity_estimator.apply_conf_file("uwv_dynamic_model.yml",['simple_case_no_vertical_damping'])
-
         velocity_estimator.configure
         velocity_estimator.start
 
@@ -151,7 +150,7 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
         end
 
         data = assert_has_one_new_sample pose_samples, 1
-        assert (data.velocity[2] - z_velocity).abs < 0.001
+        assert_in_epsilon data.velocity[2],  z_velocity, 0.02
     end
 
     it 'add depth data in velocity estimator. constant vertical velocity with influency of vertical damping' do
@@ -182,8 +181,7 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
         end
 
         data = assert_has_one_new_sample pose_samples, 1
-        assert (data.velocity[2] - z_velocity).abs > 0.001
-        assert (data.velocity[2] - z_velocity).abs < 0.01
+        assert_in_epsilon data.velocity[2], z_velocity, 0.02
     end
 
     it 'add depth data in velocity estimator. varing vertical velocity' do
@@ -216,7 +214,7 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
         end
 
         data = assert_has_one_new_sample pose_samples, 1
-        assert (data.velocity[2] - z_velocity).abs < 0.001
+        assert_in_epsilon data.velocity[2], z_velocity, 0.02
     end
 
     it 'add depth data in velocity estimator. filtering high frequency noise' do
@@ -252,7 +250,7 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
         end
 
         data = assert_has_one_new_sample pose_samples, 1
-        assert (data.velocity[2] - z_velocity).abs < 0.001
+        assert_in_epsilon data.velocity[2], z_velocity, 0.02
     end
 
 end
