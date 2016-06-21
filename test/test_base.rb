@@ -1,6 +1,7 @@
 require 'minitest/spec'
 require 'orocos/test/component'
 require 'minitest/autorun'
+require "transformer/runtime"
 
 describe 'uwv_dynamic_model::VelocityEstimator configuration' do
     include Orocos::Test::Component
@@ -123,6 +124,8 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
     end
 
     it 'add depth data in velocity estimator. constant vertical velocity' do
+        Orocos.transformer.load_conf("static_transforms.rb")
+        Orocos.transformer.setup(velocity_estimator)
         velocity_estimator.apply_conf_file("uwv_dynamic_model.yml",['simple_case_no_vertical_damping'])
 
         velocity_estimator.configure
@@ -152,6 +155,8 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
     end
 
     it 'add depth data in velocity estimator. constant vertical velocity with influency of vertical damping' do
+        Orocos.transformer.load_conf("static_transforms.rb")
+        Orocos.transformer.setup(velocity_estimator)
         velocity_estimator.apply_conf_file("uwv_dynamic_model.yml",['simple_case'])
 
         velocity_estimator.configure
@@ -182,6 +187,8 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
     end
 
     it 'add depth data in velocity estimator. varing vertical velocity' do
+        Orocos.transformer.load_conf("static_transforms.rb")
+        Orocos.transformer.setup(velocity_estimator)
         velocity_estimator.apply_conf_file("uwv_dynamic_model.yml",['simple_case_no_vertical_damping'])
 
         velocity_estimator.configure
@@ -213,6 +220,8 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
     end
 
     it 'add depth data in velocity estimator. filtering high frequency noise' do
+        Orocos.transformer.load_conf("static_transforms.rb")
+        Orocos.transformer.setup(velocity_estimator)
         velocity_estimator.apply_conf_file("uwv_dynamic_model.yml",['simple_case_no_vertical_damping'])
 
         velocity_estimator.configure
