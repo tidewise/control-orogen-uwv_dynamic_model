@@ -9,8 +9,8 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
     writer 'velocity_estimator', 'cmd_in', attr_name: 'cmd_in'
     writer 'velocity_estimator', 'dvl_samples', attr_name: 'dvl_samples'
     writer 'velocity_estimator', 'depth_samples', attr_name: 'depth_samples'
-    writer 'velocity_estimator', 'imu_orientation', attr_name: 'imu_orientation'
-    writer 'velocity_estimator', 'fog_samples', attr_name: 'fog_samples'
+    writer 'velocity_estimator', 'orientation_samples', attr_name: 'imu_orientation'
+    writer 'velocity_estimator', 'imu_samples', attr_name: 'fog_samples'
 
     def zero_command
         sample = velocity_estimator.cmd_in.new_sample
