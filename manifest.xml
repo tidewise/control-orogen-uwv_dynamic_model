@@ -3,7 +3,10 @@
   	This component implements a motion model for underwater vehicles based
   	on Fossen's motion model.
   </description>
-  <author>Rafael Saback/rafael.saback@fieb.org.br</author>
+  <maintainer>Joao Britto/cbn.joao@gmail.com</maintainer>
+  <maintainer>Rafael Saback/rafaelsaback@gmail.com</maintainer>
+  <author>Joao Britto/cbn.joao@gmail.com</author>
+  <author>Rafael Saback/rafaelsaback@gmail.com</author>
   <license></license>
   <url>http://</url>
   <logo>http://</logo>
