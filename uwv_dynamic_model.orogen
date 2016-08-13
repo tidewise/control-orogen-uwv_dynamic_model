@@ -5,7 +5,6 @@ using_library "numeric"
 import_types_from "base"
 import_types_from "uwv_dynamic_model/DataTypes.hpp"
 import_types_from "uwv_dynamic_modelTypes.hpp"
-import_types_from "auv_control"
 
 task_context "Task" do
     needs_configuration
