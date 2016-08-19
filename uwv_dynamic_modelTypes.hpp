@@ -8,7 +8,7 @@
  * which case you do not need this file
  */
 #include <base/samples/RigidBodyAcceleration.hpp>
-#include <auv_control/6dControl.hpp>
+#include <base/commands/LinearAngular6DCommand.hpp>
 
 namespace uwv_dynamic_model
 {

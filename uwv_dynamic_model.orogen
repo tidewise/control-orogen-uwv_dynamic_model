@@ -1,11 +1,10 @@
 name "uwv_dynamic_model"
 
 using_library "uwv_dynamic_model"
-using_library "numeric"
+using_library "numeric" # Imports SavitzkyGolayFilter's library
 import_types_from "base"
 import_types_from "uwv_dynamic_model/DataTypes.hpp"
 import_types_from "uwv_dynamic_modelTypes.hpp"
-import_types_from "auv_control"
 
 task_context "Task" do
     needs_configuration
@@ -57,16 +56,16 @@ task_context "Task" do
 end
 
 
-# The aims of VelocityEstimator is to be a simple Model Based Velocity Estimator.
+# The aim of VelocityEstimator is to be a simple Model Based Velocity Estimator.
 #
 # It integrates sensors data direct to the model's states,
 # without using any filter, like Kalman-Filter.
 #
-# It is based on the assuption that orientation, angular velocity
+# It is based on the assumption that orientation, angular velocity
 # and depth are provided by sensors at a high rate and precision.
 #
-# For acoustic sensor, i.e. dvl, which latency time is significant,
-# the componente replay the model with storage states and commands,
+# For acoustic sensor, i.e. dvl, whose latency time is significant,
+# the component replays the model with storaged states and commands,
 # correcting model's uncertainty with measured data.
 #
 # For the particular case of vertical velocity, depth sample is
