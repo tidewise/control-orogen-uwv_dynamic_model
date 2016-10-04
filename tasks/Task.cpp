@@ -174,6 +174,11 @@ void Task::resetStates(void)
     model_simulation->resetStates();
 }
 
+void Task::setStates(::base::samples::RigidBodyState const & pose_state)
+{
+    model_simulation->setPose(fromRBS(pose_state));
+}
+
 void Task::setSimulator(ModelSimulator simulator)
 {
    this->simulator = simulator;

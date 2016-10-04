@@ -79,6 +79,12 @@ namespace uwv_dynamic_model {
 	 */
 	virtual void resetStates(void);
 
+    /**
+     * Set the model's states to pose_state
+     * @param pose_state, the position, orientation and velocities states used to set the model
+     */
+    virtual void setStates(::base::samples::RigidBodyState const & pose_state);
+
     public:
         Task(std::string const& name = "uwv_dynamic_model::Task", ModelSimulator simulator = DYNAMIC_KINEMATIC);
         Task(std::string const& name, RTT::ExecutionEngine* engine, ModelSimulator simulator = DYNAMIC_KINEMATIC);
