@@ -40,7 +40,6 @@ bool Task::startHook()
 {
     if (! TaskBase::startHook())
         return false;
-
     return true;
 }
 void Task::updateHook()
@@ -189,6 +188,7 @@ void Task::errorHook()
 void Task::stopHook()
 {
     TaskBase::stopHook();
+    model_simulation->resetStates();
 }
 void Task::cleanupHook()
 {
