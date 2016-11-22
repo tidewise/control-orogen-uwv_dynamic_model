@@ -17,6 +17,7 @@ namespace uwv_dynamic_model
         base::samples::RigidBodyAcceleration    linear_acceleration;
         base::samples::RigidBodyAcceleration    angular_acceleration;
         base::LinearAngular6DCommand            efforts;
+        base::Time time;
     };
 }
 
