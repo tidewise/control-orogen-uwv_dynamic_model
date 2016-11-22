@@ -24,7 +24,9 @@ Orocos.run  'uwv_dynamic_model::Task' => 'motionModel',
 
     #motionModel.apply_conf_file("uwv_dynamic_model.yml",["default"])
     motionModel.apply_conf_file("uwv_dynamic_model.yml",["gazebo"])
-    efforts.apply_conf_file("thruster_force_2_body_effort.yml")
+    # motionModel.apply_conf_file("uwv_dynamic_model.yml",["gazebo_added_mass"])
+    # efforts.apply_conf_file("thruster_force_2_body_effort.yml")
+    efforts.apply_conf_file("thruster_force_2_body_effort.yml",["cog_at_origin"])
 
 	##########################################################################
 	#		                    COMPONENT INPUT PORTS
@@ -42,7 +44,7 @@ Orocos.run  'uwv_dynamic_model::Task' => 'motionModel',
     motionModel.start
     efforts.start
 
-    motionmodelproxy = Orocos::Async.proxy("MotionModel")
+    motionmodelproxy = Orocos::Async.proxy("motionModel")
     statesPort = motionmodelproxy.port("pose_samples")
 
     rbs_3DVisualization = Vizkit.default_loader.RigidBodyStateVisualization
