@@ -143,6 +143,7 @@ SecondaryStates Task::getSecondaryStates(const base::LinearAngular6DCommand &con
     secondary_states.angular_acceleration.acceleration = acceleration.angular_acceleration;
     secondary_states.angular_acceleration.time = control_input.time;
     secondary_states.linear_acceleration.time  = control_input.time;
+    secondary_states.time = control_input.time;
     secondary_states.efforts = control_input;
     return secondary_states;
 }
@@ -171,6 +172,11 @@ void Task::setUncertainty(base::samples::RigidBodyState &states)
 void Task::resetStates(void)
 {
     model_simulation->resetStates();
+}
+
+void Task::setStates(::base::samples::RigidBodyState const & pose_state)
+{
+    model_simulation->setPose(fromRBS(pose_state));
 }
 
 void Task::setSimulator(ModelSimulator simulator)

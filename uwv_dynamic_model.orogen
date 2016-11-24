@@ -49,6 +49,9 @@ task_context "Task" do
 
     operation("resetStates")
 
+    operation("setStates").
+        argument("pose_state", "/base/samples/RigidBodyState")
+
     runtime_states :SIMULATING
     exception_states :INPUT_TIMESTAMP_NOT_SET, :COMMAND_WITH_REPEATED_TIMESTAMP
 
