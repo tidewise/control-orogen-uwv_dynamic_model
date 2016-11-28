@@ -7,6 +7,7 @@
  * However, it is common that you will only import types from your library, in
  * which case you do not need this file
  */
+#include <base/samples/RigidBodyState.hpp>
 #include <base/samples/RigidBodyAcceleration.hpp>
 #include <base/commands/LinearAngular6DCommand.hpp>
 
@@ -19,6 +20,14 @@ namespace uwv_dynamic_model
         base::LinearAngular6DCommand            efforts;
         base::Time time;
     };
+
+    struct DynamicStates
+    {
+        base::samples::RigidBodyState pose;
+        uwv_dynamic_model::SecondaryStates secondary_states;
+        base::Time time;
+    };
+
 }
 
 #endif
