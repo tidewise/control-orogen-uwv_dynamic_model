@@ -213,14 +213,16 @@ bool VelocityEstimator::getTransformation(const transformer::Transformation &tra
             state(MISSING_TRANSFORMATION);
         return false;
     }
-    else
-    {
-        if(state() != RUNNING)
-            state(RUNNING);
-    }
 
     return true;
 }
+
+void VelocityEstimator::setRuntimeState(void)
+{
+    if(state() != RUNNING)
+        state(RUNNING);
+}
+
 void VelocityEstimator::errorHook()
 {
     VelocityEstimatorBase::errorHook();
