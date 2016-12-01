@@ -75,7 +75,7 @@ namespace uwv_dynamic_model {
 	virtual void handleStates(const base::samples::RigidBodyState &state, const base::LinearAngular6DCommand &control_input);
 
 	/**
-	 * Set RunTime component state idepently
+	 * Set Runtime component state independently
 	 * Default: SIMULATING
 	 */
 	virtual void setRuntimeState();
