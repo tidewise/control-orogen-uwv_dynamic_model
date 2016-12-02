@@ -80,6 +80,7 @@ void Task::updateHook()
 
     // Do something with data in derived class
     handleStates(pose, control_input);
+    setRuntimeState();
 
     // Writing the updated states
     _pose_samples.write(pose);
@@ -100,9 +101,6 @@ bool Task::checkInput(const base::LinearAngular6DCommand &control_input)
         exception(COMMAND_WITH_REPEATED_TIMESTAMP);
         return false;
     }
-
-    if(state() != SIMULATING)
-        state(SIMULATING);
     return true;
 }
 
@@ -186,6 +184,12 @@ void Task::setSimulator(ModelSimulator simulator)
 
 void Task::handleStates(const base::samples::RigidBodyState &state, const base::LinearAngular6DCommand &control_input)
 {}
+
+void Task::setRuntimeState(void)
+{
+    if(state() != SIMULATING)
+        state(SIMULATING);
+}
 
 void Task::errorHook()
 {

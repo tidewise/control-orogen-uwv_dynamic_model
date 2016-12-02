@@ -93,7 +93,17 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
     end
 
     it 'add dvl data in velocity estimator' do
+        Orocos.transformer.load_conf("static_transforms.rb")
+        Orocos.transformer.setup(velocity_estimator)
         velocity_estimator.apply_conf_file("uwv_dynamic_model.yml",['simple_case'])
+
+        dvl2body = Types::Base::Samples::RigidBodyState.new
+        velocity_estimator.static_transformations.each do |t|
+            if t.sourceFrame == "dvl"
+                dvl2body = t
+            end
+        end
+
         RANDOM_GENERATOR = Random.new()
 
         velocity_estimator.configure
@@ -108,6 +118,8 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
                 number = i/(100*(i+10)).to_f
                 vx = i/(i+10).to_f + RANDOM_GENERATOR.rand(-number..number)
                 dvl = dvl_data(vx, 0)
+                # Rotate do dvl frame
+                dvl.velocity = dvl2body.orientation.inverse * dvl.velocity
                 dvl.time = sample.time + RANDOM_GENERATOR.rand(-0.01..0.01) - 2
                 dvl_samples.write dvl
             end
@@ -116,8 +128,8 @@ describe 'uwv_dynamic_model::VelocityEstimator configuration' do
 
         data = assert_has_one_new_sample pose_samples, 1
         assert_in_epsilon data.velocity[0], 1, 0.02
-        assert_in_epsilon data.velocity[1], 0, 0.02
-        assert_in_epsilon data.velocity[2], 0, 0.02
+        assert_in_delta data.velocity[1], 0, 0.01
+        assert_in_delta data.velocity[2], 0, 0.01
         assert_in_epsilon data.angular_velocity[0], 0, 0.02
         assert_in_epsilon data.angular_velocity[1], 0, 0.02
         assert_in_epsilon data.angular_velocity[2], 0, 0.02

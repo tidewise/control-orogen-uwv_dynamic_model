@@ -51,6 +51,11 @@ namespace uwv_dynamic_model{
         void handleStates(const base::samples::RigidBodyState &state, const base::LinearAngular6DCommand &control_input);
 
         /**
+         * Set RunTime component state idepently
+         */
+        void setRuntimeState();
+
+        /**
          * Update X-Y dvl velocity in pose.
          * @param pose to be updated
          * @param dvl_sample new velocity data
