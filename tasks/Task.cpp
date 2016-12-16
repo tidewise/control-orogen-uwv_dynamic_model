@@ -110,7 +110,10 @@ base::samples::RigidBodyState Task::toRBS(const PoseVelocityState &states)
     new_state.position = states.position;
     new_state.orientation = states.orientation;
     // RBS velocity expressed in target frame, PoseVelocityState velocity expressed in body-frame
-    new_state.velocity = states.orientation.matrix()*states.linear_velocity;
+    if(_source_frame.get() == _target_frame.get())
+        new_state.velocity = states.linear_velocity;
+    else
+        new_state.velocity = states.orientation.matrix()*states.linear_velocity;
     new_state.angular_velocity = states.angular_velocity;
     return new_state;
 }
@@ -121,7 +124,10 @@ PoseVelocityState Task::fromRBS(const base::samples::RigidBodyState &states)
     new_state.position = states.position;
     new_state.orientation = states.orientation;
     // RBS velocity expressed in target frame, PoseVelocityState velocity expressed in body-frame
-    new_state.linear_velocity = states.orientation.inverse()*states.velocity;
+    if(states.sourceFrame == states.targetFrame)
+        new_state.linear_velocity = states.velocity;
+    else
+        new_state.linear_velocity = states.orientation.inverse()*states.velocity;
     new_state.angular_velocity = states.angular_velocity;
     return new_state;
 }
