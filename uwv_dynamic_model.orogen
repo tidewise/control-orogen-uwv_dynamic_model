@@ -6,6 +6,8 @@ import_types_from "base"
 import_types_from "uwv_dynamic_model/DataTypes.hpp"
 import_types_from "uwv_dynamic_modelTypes.hpp"
 
+typekit.export_types 'uwv_dynamic_model/DynamicStates'
+
 task_context "Task" do
     needs_configuration
 
