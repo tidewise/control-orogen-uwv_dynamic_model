@@ -28,7 +28,8 @@ bool Task::configureHook()
         return false;
 
     // Creating the motion model object
-    delete model_simulation;
+    if(model_simulation != NULL)
+        delete model_simulation;
     model_simulation = new ModelSimulation(simulator, TaskContext::getPeriod(), _sim_per_cycle.get(), 0);
     model_simulation->setUWVParameters(_model_parameters.get());
 
@@ -210,4 +211,5 @@ void Task::cleanupHook()
 {
     TaskBase::cleanupHook();
     delete model_simulation;
+    model_simulation = NULL;
 }
