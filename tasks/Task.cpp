@@ -28,8 +28,9 @@ bool Task::configureHook()
         return false;
 
     // Creating the motion model object
-    delete model_simulation;
-    model_simulation = new ModelSimulation(simulator, TaskContext::getPeriod(), _sim_per_cycle.get(), 0);
+    std::auto_ptr<ModelSimulation> sim(new ModelSimulation(simulator, TaskContext::getPeriod(), _sim_per_cycle.get(), 0));
+    model_simulation = sim.release();
+
     model_simulation->setUWVParameters(_model_parameters.get());
 
     last_control_input = base::Time::fromSeconds(0);
@@ -210,4 +211,5 @@ void Task::cleanupHook()
 {
     TaskBase::cleanupHook();
     delete model_simulation;
+    model_simulation = NULL;
 }
