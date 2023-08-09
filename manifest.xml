@@ -14,4 +14,6 @@
   <depend package="drivers/orogen/transformer"/>
   <depend package="control/uwv_dynamic_model"/>
   <depend package="base/numeric"/>
+
+  <test_depend package="tools/syskit" />
 </package>
