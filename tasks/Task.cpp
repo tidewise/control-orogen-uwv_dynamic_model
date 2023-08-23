@@ -107,7 +107,7 @@ bool Task::checkInput(const base::LinearAngular6DCommand &control_input)
 
 base::samples::RigidBodyState Task::toRBS(const PoseVelocityState &states)
 {
-    base::samples::RigidBodyState new_state;
+    base::samples::RigidBodyState new_state = base::samples::RigidBodyState::invalid();
     new_state.position = states.position;
     new_state.orientation = states.orientation;
     // RBS velocity expressed in target frame, PoseVelocityState velocity expressed in body-frame
@@ -158,6 +158,7 @@ void Task::setUncertainty(base::samples::RigidBodyState &states)
     base::Vector6d velocityUncertainty = _velocity_uncertainty.get();
     static base::Vector6d positionUncertainty = Eigen::VectorXd::Zero(6);
     double samplingTime = TaskContext::getPeriod();
+    states.cov_velocity = Eigen::Matrix3d::Zero();
 
     for(int i = 0; i < 3; i++)
     {
